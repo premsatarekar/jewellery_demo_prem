@@ -1,0 +1,140 @@
+/* Ensure the wrapper fills the viewport */
+.sales-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f8f9fa; /* Light background */
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Make table scrollable on smaller screens */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Ensure table takes full width */
+table {
+  width: 100%;
+  min-width: 800px; /* Prevent column squeezing on small screens */
+  border-collapse: collapse;
+}
+
+/* Keep headers styled clearly */
+table thead th {
+  white-space: nowrap;
+  background-color: #e9ecef;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Consistent row height and vertical alignment */
+table td, table th {
+  vertical-align: middle;
+  text-align: center;
+  padding: 10px;
+}
+
+/* Responsive font and spacing for mobile */
+@media (max-width: 768px) {
+  .sales-wrapper {
+    padding: 15px 10px;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+
+  table {
+    font-size: 0.9rem;
+    min-width: 700px;
+  }
+}
+
+/* Search box spacing */
+.search-box input {
+  max-width: 350px;
+  margin-bottom: 10px;
+}
+
+/* Pagination layout */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+/* Action emojis spacing */
+td span {
+  cursor: pointer;
+  margin-right: 6px;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+td span:last-child {
+  margin-right: 0;
+}
+
+/* Hover effect on action icons */
+td span:hover {
+  transform: scale(1.2);
+}
+
+/* Disable scrollbars globally in wrapper */
+.sales-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.sales-wrapper {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.pagination button:hover {
+  background-color: #ddd;
+}
+
+.pagination button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.pagination .active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}

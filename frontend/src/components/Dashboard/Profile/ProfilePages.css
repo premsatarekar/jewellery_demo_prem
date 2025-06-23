@@ -1,0 +1,470 @@
+/* ---------------------- BASE ---------------------- */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* ---------------------- PROFILE PAGE ---------------------- */
+
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  justify-content: flex-start;
+  min-height: 80vh;
+  padding: 20px;
+  max-width: 500px; /* Default max width */
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.edit-icon {
+  position: absolute;
+  top: 90px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.edit-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.edit-btn-inline {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.edit-btn-inline:hover {
+  background-color: #388e3c;
+}
+
+.profile-pic-container img.profile-img-large {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 2px solid #ddd;
+  cursor: pointer;
+}
+
+.shop-image-preview img.shop-img {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.edit-profile-form .input-field {
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 12px 0;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.save-btn:hover {
+  background-color: #0056b3;
+}
+
+.update-message {
+  margin-top: 15px;
+  color: green;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------------------- PROFILE CARD ---------------------- */
+
+.profile-card.compact {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-img-compact {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0; /* prevent overflow */
+}
+
+.admin-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  word-break: break-word;
+}
+
+.admin-email {
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: 4px;
+  word-break: break-word;
+}
+
+/* ---------------------- DETAILS SECTION ---------------------- */
+
+.details-section {
+  padding: 1.5rem;
+  background-color: #fafafa;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-weight: 600;
+  color: #666;
+  flex: 0 0 40%;
+  min-width: 120px;
+}
+
+.value {
+  color: #333;
+  flex: 1 1 55%;
+  word-break: break-word;
+}
+
+.shop-image-preview {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.shop-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* ---------------------- SETTINGS FORM ---------------------- */
+
+.settings-container {
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  background-color: #f9f9f9;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-box {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
+}
+
+.settings-heading {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+.settings-form .form-group,
+.settings-form .form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.settings-form .form-row {
+  flex-direction: row;
+  gap: 20px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button.save-settings-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button.save-settings-btn:hover {
+  background-color: #0056b3;
+}
+
+/* ---------------------- FEEDBACK ---------------------- */
+
+.update-message {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.error-msg {
+  color: red;
+  font-size: 14px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+/* ---------------------- RESPONSIVE ---------------------- */
+
+/* Small devices (phones, less than 600px) */
+@media (max-width: 599px) {
+  .profile-page {
+    max-width: 100%;
+    padding: 15px 10px;
+    border-radius: 0;
+    min-height: auto;
+  }
+
+  .edit-icon {
+    top: 80px;
+    right: 15px;
+    padding: 6px;
+  }
+
+  .profile-pic-container img.profile-img-large {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+  }
+
+  .profile-card.compact {
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .profile-img-compact {
+    width: 60px;
+    height: 60px;
+  }
+
+  .profile-info {
+    align-items: center;
+    text-align: center;
+  }
+
+  .admin-name {
+    font-size: 1.1rem;
+  }
+
+  .admin-email {
+    font-size: 0.85rem;
+  }
+
+  .details-section {
+    padding: 1rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .label, .value {
+    flex: unset;
+    width: 100%;
+  }
+
+  .settings-container {
+    padding: 15px;
+  }
+
+  .settings-box {
+    padding: 20px 15px;
+    max-width: 100%;
+  }
+
+  .settings-form .form-row {
+    flex-direction: column;
+  }
+}
+
+/* Medium devices (tablets, 600px to 900px) */
+@media (min-width: 600px) and (max-width: 899px) {
+  .profile-page {
+    max-width: 90%;
+    padding: 25px;
+  }
+
+  .edit-icon {
+    top: 85px;
+    right: 18px;
+    padding: 7px;
+  }
+
+  .profile-pic-container img.profile-img-large {
+    width: 110px;
+    height: 110px;
+  }
+
+  .profile-card.compact {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .profile-img-compact {
+    width: 70px;
+    height: 70px;
+  }
+
+  .admin-name {
+    font-size: 1.15rem;
+  }
+
+  .admin-email {
+    font-size: 0.9rem;
+  }
+
+  .details-section {
+    padding: 1.25rem;
+  }
+
+  .settings-container {
+    padding: 25px;
+  }
+
+  .settings-box {
+    padding: 30px 30px;
+    max-width: 600px;
+  }
+
+  .settings-form .form-row {
+    flex-direction: row;
+  }
+}
+
+/* Large devices (desktops, 900px and above) */
+@media (min-width: 900px) {
+  .profile-page {
+    max-width: 500px;
+    padding: 20px;
+  }
+
+  .edit-icon {
+    top: 90px;
+    right: 20px;
+  }
+
+  .profile-pic-container img.profile-img-large {
+    width: 120px;
+    height: 120px;
+  }
+
+  .profile-card.compact {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .profile-img-compact {
+    width: 80px;
+    height: 80px;
+  }
+
+  .admin-name {
+    font-size: 1.2rem;
+  }
+
+  .admin-email {
+    font-size: 0.95rem;
+  }
+
+  .details-section {
+    padding: 1.5rem;
+  }
+
+  .settings-container {
+    padding: 30px;
+  }
+
+  .settings-box {
+    padding: 30px 40px;
+    max-width: 800px;
+  }
+
+  .settings-form .form-row {
+    flex-direction: row;
+  }
+}

@@ -1,0 +1,118 @@
+/* src/components/Dashboard/Masters/Customers/CustomerList.css */
+
+.customer-list-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.customer-list-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.customer-table th,
+.customer-table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #444;
+}
+
+.customer-table td {
+  color: #555;
+}
+
+.customer-table .no-data {
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+  color: #888;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.action-buttons span {
+  cursor: pointer;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Edit button style */
+.action-buttons span[title="Edit"] {
+  background-color: #4caf50;
+  color: white;
+}
+
+.action-buttons span[title="Edit"]:hover {
+  background-color: #45a049;
+}
+
+/* Delete button style */
+.action-buttons span[title="Delete"] {
+  background-color: #f44336;
+  color: white;
+}
+
+.action-buttons span[title="Delete"]:hover {
+  background-color: #d32f2f;
+}
+
+/* Pagination controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.pagination-controls button {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-controls button:hover {
+  background-color: #1565c0;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-weight: bold;
+}

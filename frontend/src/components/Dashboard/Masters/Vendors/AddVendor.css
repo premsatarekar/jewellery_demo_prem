@@ -1,0 +1,124 @@
+.vendor-container {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .vendor-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .vendor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .vendor-form input,
+  .vendor-form select,
+  .vendor-form textarea {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .vendor-form textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+ .vendor-submit-btn {
+  padding: 15px;
+  background-color: #e0c87f; /* Golden */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+  .vendor-submit-btn:hover {
+    background-color: #f13e44;
+  }
+  /* AddVendor.css */
+
+.add-vendor-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.add-vendor-form .form-group {
+  margin-bottom: 20px;
+}
+
+.add-vendor-form .form-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+  font-family: Arial, sans-serif;
+  color: #555;
+}
+
+.add-vendor-form .form-group input,
+.add-vendor-form .form-group textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-vendor-form .form-group input:focus,
+.add-vendor-form .form-group textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.add-vendor-form .form-group textarea {
+  height: 120px;
+  resize: vertical;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}
+
+.submit-btn:focus {
+  outline: none;
+}

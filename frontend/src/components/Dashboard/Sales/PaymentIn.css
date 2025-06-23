@@ -1,0 +1,40 @@
+.payment-container {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 6px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.search-bar {
+  margin-bottom: 15px;
+  text-align: right;
+}
+
+.search-bar input {
+  padding: 8px 12px;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payment-table th, .payment-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.details-btn {
+  padding: 6px 12px;
+  background-color: #e0f0ff;
+  color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+}

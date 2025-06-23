@@ -1,0 +1,167 @@
+.expenses-report-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px 25px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.filter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.filter-controls select,
+.filter-controls button {
+  padding: 10px 18px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #bbb;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  outline-offset: 2px;
+  cursor: pointer;
+  min-width: 150px;
+  box-sizing: border-box;
+}
+
+.filter-controls select:focus,
+.filter-controls button:focus {
+  border-color: #6a4fbb;
+  outline: none;
+}
+
+.view-btn {
+  background-color: #6a4fbb;
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.view-btn:hover,
+.view-btn:focus {
+  background-color: #573a9a;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.report-table th,
+.report-table td {
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.report-table th {
+  background-color: #f5f5f5;
+  font-weight: 700;
+  color: #444;
+}
+
+.report-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.total-section {
+  margin-top: 20px;
+  text-align: right;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.no-results {
+  margin-top: 35px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  font-size: 1rem;
+}
+
+/* Responsive breakpoints */
+
+@media (max-width: 768px) {
+  .expenses-report-container {
+    padding: 15px 20px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .filter-controls {
+    gap: 10px;
+  }
+
+  .filter-controls select,
+  .filter-controls button {
+    min-width: 120px;
+    font-size: 0.9rem;
+    padding: 9px 15px;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .total-section {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .expenses-report-container {
+    margin: 20px 12px;
+    padding: 12px 15px;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-controls select,
+  .filter-controls button {
+    width: 100%;
+    min-width: auto;
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+
+  .total-section {
+    font-size: 1rem;
+    text-align: center;
+  }
+}

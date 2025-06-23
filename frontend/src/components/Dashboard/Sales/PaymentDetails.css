@@ -1,0 +1,44 @@
+.payment-details-container {
+  padding: 20px;
+  background: #fff8e7;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #e0d7c3;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.payment-heading {
+  font-size: 24px;
+  color: #8b6f20;
+  margin-bottom: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payment-table th,
+.payment-table td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.payment-table th {
+  background-color: #f7e7c4;
+  color: #4a3f1f;
+}
+
+.payment-table tr:nth-child(even) {
+  background-color: #f9f2e4;
+}
+
+.no-payments-msg {
+  font-style: italic;
+  color: #999;
+}

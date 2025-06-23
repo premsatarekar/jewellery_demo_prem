@@ -1,0 +1,90 @@
+/* Navbar.css */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #272a4e; /* deep blue-purple */
+  color: white;
+  padding: 0.8rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Hamburger menu container */
+.menu-icon {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 22px; /* slightly taller for better tap target */
+  width: 28px;  /* fixed width for consistency */
+  transition: transform 0.3s ease;
+}
+
+/* Hamburger bars */
+.menu-icon .bar {
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  margin: 3px 0;
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
+}
+
+/* On hover or focus: lighten bars */
+.menu-icon:hover .bar,
+.menu-icon:focus .bar {
+  background-color: #f0d9b5; /* soft golden highlight */
+  outline: none;
+}
+
+/* Navbar Title */
+.navbar-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  white-space: nowrap; /* prevent wrapping */
+  user-select: none;
+  flex: 1;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+
+/* Tablets and below */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.6rem 1rem;
+  }
+
+  .navbar-title {
+    font-size: 1.1rem;
+  }
+
+  .menu-icon {
+    height: 20px;
+    width: 26px;
+  }
+}
+
+/* Mobile small screens */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.5rem 0.8rem;
+  }
+
+  .navbar-title {
+    font-size: 1rem;
+    /* Make title aligned left with some padding */
+    text-align: left;
+  }
+
+  /* Move menu-icon to left */
+  .menu-icon {
+    order: -1; /* move it before title */
+    margin-right: 12px;
+  }
+}

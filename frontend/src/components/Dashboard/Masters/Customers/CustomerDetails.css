@@ -1,0 +1,132 @@
+/* src/components/Dashboard/Customers/CustomerDetails.css */
+
+.sales-card {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.sales-card h2 {
+  text-align: center;
+  color: #3e3e78; /* Deep blue color matching the jewelry theme */
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.sales-card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.sales-card th, .sales-card td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  color: #555;
+}
+
+.sales-card th {
+  background-color: #f44336; /* Jewelry theme red */
+  color: white;
+}
+
+.sales-card td {
+  background-color: #f9f9f9;
+}
+
+.sales-card td:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+.sales-card .no-payments {
+  text-align: center;
+  padding: 20px;
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Mobile and Tablet Responsiveness */
+@media (max-width: 768px) {
+  .sales-card {
+    padding: 15px;
+  }
+
+  .sales-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .sales-card th, .sales-card td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .sales-card table {
+    font-size: 12px;
+  }
+}
+
+/* Desktop Responsiveness */
+@media (min-width: 1024px) {
+  .sales-card {
+    max-width: 90%;
+  }
+}
+/* src/components/Dashboard/Customers/CustomerDetails.css */
+.sales-card {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.sales-card h2 {
+  margin-bottom: 20px;
+  color: #b08d57; /* Golden color */
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.sales-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sales-card th,
+.sales-card td {
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.sales-card th {
+  background-color: #f5f5f5;
+  color: #b08d57; /* Golden color */
+}
+
+.sales-card .no-data {
+  text-align: center;
+  padding: 12px;
+  color: #777;
+}
+
+@media (max-width: 768px) {
+  .sales-card h2 {
+    font-size: 1.2rem;
+  }
+
+  .sales-card th,
+  .sales-card td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}

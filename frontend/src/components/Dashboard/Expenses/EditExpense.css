@@ -1,0 +1,100 @@
+/* EditExpense.css */
+.expenses-report {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.expenses-report h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.expenses-report form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.expenses-report label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: #444;
+}
+
+.expenses-report input[type="text"],
+.expenses-report input[type="number"],
+.expenses-report input[type="date"] {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  margin-top: 6px;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.expenses-report input:focus {
+  border-color: #d4a118;
+}
+
+.expenses-report button {
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.expenses-report button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+}
+
+.expenses-report button[type="submit"]:hover {
+  background-color: #218838;
+}
+
+.expenses-report button[type="button"] {
+  background-color: #dc3545;
+  color: white;
+}
+
+.expenses-report button[type="button"]:hover {
+  background-color: #c82333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .expenses-report {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .expenses-report input,
+  .expenses-report button {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .expenses-report {
+    padding: 16px;
+  }
+
+  .expenses-report h2 {
+    font-size: 20px;
+  }
+
+  .expenses-report button {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

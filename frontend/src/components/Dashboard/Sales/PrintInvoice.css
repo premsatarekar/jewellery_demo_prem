@@ -1,0 +1,181 @@
+/* Invoice Container Layout */
+.invoice-container {
+  width: 100%;
+  max-width: 794px; /* A4 width */
+  margin: 0 auto;
+  padding: 20mm;
+  background: #fff;
+  font-family: 'Arial', sans-serif;
+  color: #000;
+  box-sizing: border-box;
+}
+
+/* Header */
+.invoice-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.invoice-header h1 {
+  font-size: 24pt;
+  margin: 0 0 5px;
+  font-weight: bold;
+}
+
+.invoice-header h2 {
+  font-size: 16pt;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Details Section */
+.invoice-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 10pt;
+  margin: 10mm 0;
+  gap: 6px;
+}
+
+.invoice-details div {
+  flex: 1 1 48%;
+  line-height: 1.5;
+}
+
+/* Invoice Table */
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  margin-bottom: 10mm;
+}
+
+.invoice-table th,
+.invoice-table td {
+  border: 1px solid #ccc;
+  padding: 6pt 8pt;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.invoice-table th {
+  background-color: #f7f7f7;
+  font-weight: bold;
+}
+
+/* Summary Section */
+.invoice-summary {
+  text-align: right;
+  font-size: 10pt;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+/* Button Group */
+.invoice-buttons {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.invoice-buttons button {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 5px;
+  font-size: 15px;
+  margin: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.invoice-buttons button:nth-child(1) {
+  background-color: #4caf50;
+  color: white;
+}
+
+.invoice-buttons button:nth-child(1):hover {
+  background-color: #449d48;
+}
+
+.invoice-buttons button:nth-child(2) {
+  background-color: #ff9800;
+  color: white;
+}
+
+.invoice-buttons button:nth-child(2):hover {
+  background-color: #e68900;
+}
+
+.invoice-buttons button:nth-child(3) {
+  background-color: #2196f3;
+  color: white;
+}
+
+.invoice-buttons button:nth-child(3):hover {
+  background-color: #1976d2;
+}
+
+/* Print Styles */
+@media print {
+  .no-print,
+  .invoice-buttons {
+    display: none !important;
+  }
+
+  body {
+    margin: 0;
+    background: white;
+  }
+
+  .invoice-container {
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    padding: 6pt;
+  }
+
+  .invoice-summary {
+    font-size: 11pt;
+  }
+}
+
+/* Mobile and Tablet Responsive */
+@media (max-width: 1024px) {
+  .invoice-container {
+    padding: 15px;
+  }
+
+  .invoice-header h1 {
+    font-size: 20pt;
+  }
+
+  .invoice-details div {
+    flex: 1 1 100%;
+  }
+
+  .invoice-buttons {
+    flex-direction: column;
+  }
+
+  .invoice-buttons button {
+    width: 100%;
+    font-size: 14px;
+    margin: 8px 0;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    font-size: 9pt;
+    padding: 6px 5px;
+  }
+
+  .invoice-summary {
+    font-size: 9.5pt;
+  }
+}

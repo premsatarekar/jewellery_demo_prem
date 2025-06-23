@@ -1,0 +1,174 @@
+.edit-category-container {
+  max-width: 650px;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(to bottom, #fdfcfb, #e2d1c3);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.edit-category-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #b38b59;
+  border-bottom: 2px solid #b38b59;
+  padding-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #6a4e33;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff8f3;
+}
+
+.carats-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #8d5524;
+  margin: 1.5rem 0 1rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.3rem;
+}
+
+.carat-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.carat-input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  background: #fffdfa;
+}
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-add {
+  background-color: #af7a44;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+
+.btn-add:hover {
+  background-color: #8f6337;
+}
+
+.btn-remove {
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 0.5rem 0.8rem;
+}
+
+.btn-remove:hover {
+  background-color: #c0392b;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.btn-save {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.btn-save:hover {
+  background-color: #1e8449;
+}
+
+.btn-cancel {
+  background-color: #7f8c8d;
+  color: #fff;
+}
+
+.btn-cancel:hover {
+  background-color: #616a6b;
+}
+
+/* 🌐 Responsive Design */
+@media (max-width: 768px) {
+  .edit-category-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+
+  .edit-category-title {
+    font-size: 1.5rem;
+  }
+
+  .form-input, .carat-input {
+    font-size: 0.95rem;
+  }
+
+  .carat-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-add {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-save,
+  .btn-cancel {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-category-title {
+    font-size: 1.3rem;
+  }
+
+  .form-label {
+    font-size: 0.95rem;
+  }
+
+  .form-input,
+  .carat-input {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}

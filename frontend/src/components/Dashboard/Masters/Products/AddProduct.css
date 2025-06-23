@@ -1,0 +1,114 @@
+/* AddProduct.css */
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #fdfaf6;
+  color: #3b3b3b;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  text-align: center;
+  color: #b8860b; /* golden hue */
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  border-color: #b8860b;
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #4a4a4a;
+}
+
+small {
+  font-size: 0.85rem;
+}
+
+.toggle-btn {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #b8860b;
+  background-color: #fff;
+  color: #b8860b;
+  font-weight: bold;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  width: 48%;
+}
+
+.toggle-btn.active,
+.toggle-btn:hover {
+  background-color: #b8860b;
+  color: white;
+}
+
+#reader {
+  border: 2px dashed #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+button[type="submit"],
+button#start-scan {
+  background-color: #b8860b;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover,
+button#start-scan:hover {
+  background-color: #a27400;
+}
+
+@media (max-width: 768px) {
+  .toggle-btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  form {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  input, button {
+    font-size: 0.95rem;
+  }
+
+  form {
+    gap: 10px;
+  }
+}

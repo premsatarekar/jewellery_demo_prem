@@ -1,0 +1,102 @@
+/* AddExpense.css */
+.add-expense-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.add-expense-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 24px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+}
+
+.error-msg {
+  color: red;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.submit-expense {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #d4a118;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
+}
+
+.submit-expense:hover {
+  background-color: #b8860b;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+  .add-expense-container {
+    margin: 20px 15px;
+    padding: 20px;
+  }
+
+  .form-group input {
+    font-size: 15px;
+  }
+
+  .submit-expense {
+    font-size: 15px;
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .add-expense-container {
+    margin: 15px 10px;
+    padding: 18px;
+  }
+
+  .add-expense-container h2 {
+    font-size: 20px;
+  }
+
+  .form-group input {
+    font-size: 14px;
+    padding: 9px;
+  }
+
+  .submit-expense {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

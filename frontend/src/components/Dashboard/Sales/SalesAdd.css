@@ -1,0 +1,149 @@
+.sales-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.sales-title {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.sales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sales-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.sales-field label {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.sales-field input,
+.sales-field select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.error {
+  color: red;
+  font-size: 0.8rem;
+}
+
+.section-title {
+  margin-top: 2rem;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  display: block;
+}
+
+.product-table th,
+.product-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.product-table input {
+  width: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.add-line-btn {
+  margin: 1rem 0;
+  padding: 8px 12px;
+  background-color: #2b83f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-line-btn:hover {
+  background-color: #1d66c4;
+}
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.totals-grid label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.form-actions button {
+  padding: 8px 16px;
+  background-color: #2b83f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-actions button:hover {
+  background-color: #1d66c4;
+}
+
+.scanner-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.scanner-popup-content {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  position: relative;
+}
+
+.close-scanner {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 0 8px;
+  border-radius: 50%;
+  cursor: pointer;
+}

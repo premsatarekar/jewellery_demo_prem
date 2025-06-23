@@ -1,0 +1,68 @@
+/* Container styling */
+.staff-page {
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Title */
+.staff-page h1 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Description */
+.staff-page p {
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+/* Button layout */
+.staff-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Reusable button styles */
+.staff-buttons button {
+  padding: 0.5rem 1.25rem;
+  font-size: 1rem;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Specific button colors */
+.staff-buttons .add-btn {
+  background-color: #2563eb;
+}
+
+.staff-buttons .add-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.staff-buttons .view-btn {
+  background-color: #16a34a;
+}
+
+.staff-buttons .view-btn:hover {
+  background-color: #15803d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .staff-page h1 {
+    font-size: 1.5rem;
+  }
+
+  .staff-buttons {
+    flex-direction: column;
+  }
+
+  .staff-buttons button {
+    width: 100%;
+  }
+}

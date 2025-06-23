@@ -1,0 +1,122 @@
+/* Center the entire content */
+.product-list-container {
+  max-width: 95%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9fafc;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Centered heading */
+.product-list-heading {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Search bar styling */
+.search-bar {
+  display: block;
+  margin: 0 auto 20px;
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* Table wrapper for scroll on mobile */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+/* Table styling */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.product-table th,
+.product-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.product-table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+}
+
+/* Action buttons */
+.edit-btn,
+.delete-btn {
+  padding: 6px 12px;
+  margin-right: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+
+.edit-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Pagination styling */
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination button {
+  margin: 0 4px;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .product-table th,
+  .product-table td {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+
+  .search-bar {
+    max-width: 90%;
+  }
+}

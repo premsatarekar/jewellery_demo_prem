@@ -1,0 +1,109 @@
+/* EditProduct.css */
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fdfaf6;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  text-align: center;
+  color: #b8860b; /* golden tone */
+  margin-bottom: 20px;
+}
+
+.edit-container {
+  max-width: 450px;
+  margin: 30px auto;
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.edit-container label {
+  font-weight: 500;
+  margin-top: 10px;
+  color: #333;
+}
+
+.edit-container input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border 0.3s;
+}
+
+.edit-container input:focus {
+  border-color: #b8860b;
+  outline: none;
+}
+
+.edit-container button {
+  width: 100%;
+  padding: 12px;
+  background-color: #28a745;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  margin-top: 10px;
+}
+
+.edit-container button:hover {
+  background-color: #218838;
+}
+
+@media screen and (max-width: 768px) {
+  .edit-container {
+    margin: 20px 10px;
+    padding: 20px;
+  }
+
+  .edit-container input,
+  .edit-container button {
+    font-size: 0.95rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .edit-container {
+    padding: 15px;
+  }
+}
+/* Add to bottom of EditProduct.css */
+
+.error {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+.save-btn {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #c6bf48;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.save-btn:hover {
+  background-color: #f3d055;
+}
