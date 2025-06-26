@@ -23,7 +23,14 @@ export const addSale = async (req, res) => {
     items, // ← array
   } = req.body;
 
-  if (!invoice_no || !customer_name || !invoice_date || !payment_mode || !state || !items?.length)
+  if (
+    !invoice_no ||
+    !customer_name ||
+    !invoice_date ||
+    !payment_mode ||
+    !state ||
+    !items?.length
+  )
     return res.status(400).json({ msg: "Required fields missing" });
 
   const conn = await db.getConnection();
@@ -104,10 +111,16 @@ export const listSales = async (_req, res) => {
 export const getSale = async (req, res) => {
   const { invoiceNo } = req.params;
   try {
-    const [[order]] = await db.query(`SELECT * FROM sales_orders WHERE invoice_no=?`, [invoiceNo]);
+    const [[order]] = await db.query(
+      `SELECT * FROM sales_orders WHERE invoice_no=?`,
+      [invoiceNo]
+    );
     if (!order) return res.status(404).json({ msg: "Not found" });
 
-    const [items] = await db.query(`SELECT * FROM sales_items WHERE order_id=?`, [order.id]);
+    const [items] = await db.query(
+      `SELECT * FROM sales_items WHERE order_id=?`,
+      [order.id]
+    );
     order.items = items;
     res.json(order);
   } catch (err) {
@@ -124,7 +137,10 @@ export const updateSale = async (req, res) => {
   const conn = await db.getConnection();
   try {
     /* 1. get id */
-    const [[existing]] = await conn.query(`SELECT id FROM sales_orders WHERE invoice_no=?`, [invoiceNo]);
+    const [[existing]] = await conn.query(
+      `SELECT id FROM sales_orders WHERE invoice_no=?`,
+      [invoiceNo]
+    );
     if (!existing) return res.status(404).json({ msg: "Not found" });
     const orderId = existing.id;
 
@@ -188,7 +204,10 @@ export const updateSale = async (req, res) => {
 export const deleteSale = async (req, res) => {
   const { invoiceNo } = req.params;
   try {
-    const [del] = await db.query(`DELETE FROM sales_orders WHERE invoice_no=?`, [invoiceNo]);
+    const [del] = await db.query(
+      `DELETE FROM sales_orders WHERE invoice_no=?`,
+      [invoiceNo]
+    );
     if (!del.affectedRows) return res.status(404).json({ msg: "Not found" });
     res.json({ msg: "Sale deleted" });
   } catch (err) {
@@ -227,6 +246,30 @@ export const salesReport = async (req, res) => {
     res.json(rows); // frontend already groups by period
   } catch (err) {
     console.error("SALES REPORT ERR:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+/* ---------- getProductForSalesByBarcode ---------- */
+export const getProductForSalesByBarcode = async (req, res) => {
+  const { barcode } = req.params;
+
+  try {
+    const [rows] = await db.query(
+      `SELECT product_name, weight, price AS selling_price 
+       FROM products 
+       WHERE barcode = ?`,
+      [barcode]
+    );
+
+    if (!rows.length)
+      return res
+        .status(404)
+        .json({ msg: "Product not found with this barcode" });
+
+    res.json(rows[0]); // { product_name, weight, selling_price }
+  } catch (err) {
+    console.error("getProductForSalesByBarcode ERR:", err);
     res.status(500).json({ msg: "Server error" });
   }
 };

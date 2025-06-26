@@ -134,7 +134,10 @@ const ViewStaff = () => {
 
       <div className="staff-container">
         <div className="staff-header">👥 Staff Members</div>
-        <button className="add-btn" onClick={() => navigate("/dashboard/staff/add")}>
+        <button
+          className="add-btn"
+          onClick={() => navigate("/dashboard/staff/add")}
+        >
           ➕ Add Staff
         </button>
 
@@ -143,7 +146,6 @@ const ViewStaff = () => {
             <thead>
               <tr>
                 <th>Username</th>
-                <th>Password</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Role</th>
@@ -153,7 +155,10 @@ const ViewStaff = () => {
             <tbody>
               {staffList.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
+                  <td
+                    colSpan="6"
+                    style={{ textAlign: "center", padding: "1rem" }}
+                  >
                     No staff members found.
                   </td>
                 </tr>
@@ -196,13 +201,15 @@ const StaffRow = ({ index, staff, onEdit, onDelete }) => {
 
   return (
     <tr>
-      {["username", "password", "email", "phone"].map((field) => (
+      {["username", "email", "phone"].map((field) => (
         <td key={field}>
           {isEditing ? (
             <input
               type={field === "email" ? "email" : "text"}
               value={edited[field]}
-              onChange={(e) => setEdited({ ...edited, [field]: e.target.value })}
+              onChange={(e) =>
+                setEdited({ ...edited, [field]: e.target.value })
+              }
               required
             />
           ) : (
@@ -217,16 +224,28 @@ const StaffRow = ({ index, staff, onEdit, onDelete }) => {
             <button className="action-btn" title="Save" onClick={handleSave}>
               💾 Save
             </button>
-            <button className="action-btn" title="Cancel" onClick={() => setIsEditing(false)}>
+            <button
+              className="action-btn"
+              title="Cancel"
+              onClick={() => setIsEditing(false)}
+            >
               ❌ Cancel
             </button>
           </>
         ) : (
           <>
-            <button className="action-btn" title="Edit" onClick={() => setIsEditing(true)}>
+            <button
+              className="action-btn"
+              title="Edit"
+              onClick={() => setIsEditing(true)}
+            >
               ✏️ Edit
             </button>
-            <button className="action-btn" title="Delete" onClick={() => onDelete(index)}>
+            <button
+              className="action-btn"
+              title="Delete"
+              onClick={() => onDelete(index)}
+            >
               🗑️ Delete
             </button>
           </>

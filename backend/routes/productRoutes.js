@@ -1,4 +1,3 @@
-// backend/routes/products.js
 import express from "express";
 import {
   addProduct,
@@ -7,15 +6,21 @@ import {
   getProductById,
   updateProduct,
   deleteProduct,
+  getProductByHSN,
+  getProductByBarcode,
+  getBarcodePdf,
 } from "../controllers/productController.js";
 
 const router = express.Router();
 
 router.post("/add", addProduct);
-router.post("/bulk", bulkAddProducts); // ← bulk route
+router.post("/bulk", bulkAddProducts);
 router.get("/", getProducts);
+router.get("/hsn/:hsn", getProductByHSN);
 router.get("/:id", getProductById);
 router.put("/:id", updateProduct);
 router.delete("/:id", deleteProduct);
+router.get("/barcode/:barcode", getProductByBarcode);
+router.get("/barcode/pdf/:barcode", getBarcodePdf);
 
 export default router;

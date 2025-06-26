@@ -8,11 +8,17 @@ import "./AdminDashboard.css"; // keep existing styles
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { user } = useUser(); // logged‑in user (role etc.)
+  const { user, loadingUser } = useUser(); // ✅ moved here correctly
   const { categories = [], updateCategoryPrices } = useCategory();
 
-  const [basePrices, setBasePrices] = useState({}); // { Gold: '6500', … }
-  const [updatingIds, setUpdatingIds] = useState(new Set()); // for UI disabling
+  const [basePrices, setBasePrices] = useState({});
+  const [updatingIds, setUpdatingIds] = useState(new Set());
+
+  // ✅ Wait till user is loaded
+  if (loadingUser) return null;
+
+  // ✅ Check role safely
+  const isSuperadmin = user?.role?.toLowerCase() === "superadmin";
 
   /* ---------- helpers ---------- */
   const categoryGroups = {
@@ -29,18 +35,16 @@ const AdminDashboard = () => {
   };
 
   const getCaratWeight = (caratName) => {
-    if (!caratName || typeof caratName !== "string") return 1; // 👈 safe fallback
+    if (!caratName || typeof caratName !== "string") return 1;
     const match = caratName.match(/\d+(\.\d+)?/);
     return match ? parseFloat(match[0]) : 1;
   };
 
-  /* ---------- input change ---------- */
   const handleChange = (name, val) => {
     const clean = val.trim();
-    if (!/^\d*\.?\d*$/.test(clean)) return; // block non‑numeric
+    if (!/^\d*\.?\d*$/.test(clean)) return;
     setBasePrices((prev) => ({ ...prev, [name]: clean }));
 
-    // if input cleared → clear prices for that category immediately
     if (clean === "") {
       const cat = categories.find((c) => c.name === name);
       if (!cat) return;
@@ -49,7 +53,6 @@ const AdminDashboard = () => {
     }
   };
 
-  /* ---------- update prices ---------- */
   const handleUpdate = async (clickedCat) => {
     const baseStr = basePrices[clickedCat.name];
     const baseNum = parseFloat(baseStr);
@@ -58,12 +61,10 @@ const AdminDashboard = () => {
       toast.error("Please enter a valid base price");
       return;
     }
-    if (updatingIds.has(clickedCat.id)) return; // prevent double‑click
+    if (updatingIds.has(clickedCat.id)) return;
 
-    // add to updating set
     setUpdatingIds((prev) => new Set(prev).add(clickedCat.id));
 
-    // decide which categories to update based on group
     const grpName = findGroup(clickedCat.name);
     const catsToUpdate = grpName
       ? categories.filter((c) =>
@@ -87,7 +88,6 @@ const AdminDashboard = () => {
       toast.error("Error updating prices. Please try again.");
     }
 
-    // remove from updating set
     setUpdatingIds((prev) => {
       const s = new Set(prev);
       s.delete(clickedCat.id);
@@ -95,7 +95,6 @@ const AdminDashboard = () => {
     });
   };
 
-  /* ---------- UI ---------- */
   return (
     <div style={{ padding: "40px" }}>
       <h2>Admin Dashboard</h2>
@@ -113,8 +112,8 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      {/* Price update section only for superadmin */}
-      {user.role === "superadmin" && (
+      {/* ✅ Today's Prices for superadmin only */}
+      {isSuperadmin && (
         <>
           <h3 style={{ marginTop: "30px" }}>Today's Prices</h3>
 

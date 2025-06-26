@@ -25,10 +25,15 @@ export const UserProvider = ({ children }) => {
     role: "",
   });
 
-  // Load from localStorage on initial mount
+  const [loadingUser, setLoadingUser] = useState(true); // 🟡 loading state added
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("currentUser"));
     const storedRole = localStorage.getItem("role");
+
+    // 🔐 Role load logic
+    const finalRole =
+      storedRole || storedUser?.user_type || storedUser?.role || "";
 
     if (storedUser) {
       setUser({
@@ -39,9 +44,11 @@ export const UserProvider = ({ children }) => {
         shopAddress: localStorage.getItem(storageKeys.shopAddress) || "",
         mobile: localStorage.getItem(storageKeys.mobile) || "",
         gst: localStorage.getItem(storageKeys.gst) || "",
-        role: storedRole || storedUser.user_type || "",
+        role: finalRole.toLowerCase(),
       });
     }
+
+    setLoadingUser(false); // ✅ wait done
   }, []);
 
   const updateUser = (key, value) => {
@@ -69,7 +76,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, updateUser, logoutUser }}>
+    <UserContext.Provider value={{ user, updateUser, logoutUser, loadingUser }}>
       {children}
     </UserContext.Provider>
   );

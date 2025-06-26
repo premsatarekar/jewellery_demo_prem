@@ -99,43 +99,66 @@ const SalesAdd = () => {
     calculateTotals(updated);
   };
 
-  const calculateTotals = (items) => {
-    const subTotal = items.reduce(
-      (acc, item) => acc + parseFloat(item.amount || 0),
-      0
-    );
-    const taxPercent = parseFloat(invoiceData.taxPercent || 0);
-    const discountPercent = parseFloat(invoiceData.discountPercent || 0);
+  const calculateTotals = useCallback(
+    (items) => {
+      const subTotal = items.reduce(
+        (acc, item) => acc + parseFloat(item.amount || 0),
+        0
+      );
+      const taxPercent = parseFloat(invoiceData.taxPercent || 0);
+      const discountPercent = parseFloat(invoiceData.discountPercent || 0);
 
-    const discount = subTotal * (discountPercent / 100);
-    const taxableAmount = subTotal - discount;
-    const taxAmount = taxableAmount * (taxPercent / 100);
+      const discount = subTotal * (discountPercent / 100);
+      const taxableAmount = subTotal - discount;
+      const taxAmount = taxableAmount * (taxPercent / 100);
 
-    let cgst = 0,
-      sgst = 0,
-      igst = 0;
-    if (invoiceData.state.toLowerCase() === "karnataka") {
-      cgst = taxAmount / 2;
-      sgst = taxAmount / 2;
-    } else {
-      igst = taxAmount;
-    }
+      let cgst = 0,
+        sgst = 0,
+        igst = 0;
+      if (invoiceData.state.toLowerCase() === "karnataka") {
+        cgst = taxAmount / 2;
+        sgst = taxAmount / 2;
+      } else {
+        igst = taxAmount;
+      }
 
-    const total = parseFloat((taxableAmount + taxAmount).toFixed(2));
+      const total = parseFloat((taxableAmount + taxAmount).toFixed(2));
 
-    setInvoiceData((prev) => ({
-      ...prev,
-      subTotal,
-      cgst: cgst.toFixed(2),
-      sgst: sgst.toFixed(2),
-      igst: igst.toFixed(2),
-      total,
-    }));
-  };
+      setInvoiceData((prev) => ({
+        ...prev,
+        subTotal,
+        cgst: cgst.toFixed(2),
+        sgst: sgst.toFixed(2),
+        igst: igst.toFixed(2),
+        total,
+      }));
+    },
+    [
+      invoiceData.taxPercent,
+      invoiceData.discountPercent,
+      invoiceData.state,
+      setInvoiceData,
+    ]
+  );
 
   const handleInvoiceChange = (e) => {
     const { name, value } = e.target;
-    const updated = { ...invoiceData, [name]: value };
+    let updated = { ...invoiceData };
+
+    // Input restrictions
+    if (name === "customerName") {
+      if (!/^[A-Za-z\s]{0,30}$/.test(value)) return;
+    }
+
+    if (
+      ["amountPaid", "taxPercent", "discountPercent"].includes(name) &&
+      value !== "" &&
+      !/^\d{0,6}(\.\d{0,2})?$/.test(value)
+    ) {
+      return;
+    }
+
+    updated[name] = value;
     setInvoiceData(updated);
 
     if (["taxPercent", "discountPercent", "state"].includes(name)) {
@@ -234,13 +257,38 @@ const SalesAdd = () => {
   };
 
   const handleBarcodeScan = useCallback(
-    (barcode) => {
-      const updated = [...lineItems];
-      updated[0].barcode = barcode;
-      setLineItems(updated);
-      setShowScanner(false);
+    async (barcode) => {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/sales/barcode/${barcode}`
+        );
+
+        const updated = [...lineItems];
+        updated[0] = {
+          ...updated[0],
+          itemName: data.product_name,
+          weight: data.weight,
+          quantity: 1,
+          cost: data.selling_price,
+          makingCharges: data.making_charges || 0,
+          barcode: barcode,
+        };
+
+        // amount bhi calculate ho jaayega
+        const cost = parseFloat(data.selling_price || 0);
+        const making = parseFloat(data.making_charges || 0);
+        const amount = cost + cost * (making / 100);
+        updated[0].amount = amount;
+
+        setLineItems(updated);
+        calculateTotals(updated);
+        setShowScanner(false);
+      } catch (err) {
+        alert("Product not found with scanned barcode ❌");
+        setShowScanner(false);
+      }
     },
-    [lineItems]
+    [lineItems, calculateTotals]
   );
 
   useEffect(() => {

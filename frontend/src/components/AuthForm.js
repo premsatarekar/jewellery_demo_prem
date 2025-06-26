@@ -66,7 +66,7 @@ export default function AuthForm({ onLogin }) {
       // Call onLogin only if provided
       if (typeof onLogin === "function") onLogin();
 
-      navigate("/dashboard/admin-dashboard");
+      window.location.href = "/dashboard/admin-dashboard";
     } catch (err) {
       console.error("Login error", err);
       const message =

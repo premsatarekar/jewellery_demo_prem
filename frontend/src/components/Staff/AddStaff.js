@@ -5,7 +5,6 @@ import axios from "axios";
 const AddStaff = () => {
   const navigate = useNavigate();
 
-  /* ---------- local state ---------- */
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -14,19 +13,57 @@ const AddStaff = () => {
     role: "staff",
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  /* ---------- change handler ---------- */
-  const handleChange = (e) =>
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  /* ---------- submit ---------- */
+    // 👉 input restriction for username (only alphabets)
+    if (name === "username") {
+      if (!/^[A-Za-z]*$/.test(value)) return; // block numbers/symbols
+    }
+
+    // 👉 phone: max 10 digits only
+    if (name === "phone") {
+      if (!/^\d{0,10}$/.test(value)) return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validate = () => {
+    const { username, password, email, phone } = formData;
+
+    const usernameRegex = /^[A-Za-z]{1,}$/;
+    const phoneRegex = /^[0-9]{10}$/;
+
+    if (!username || !password || !email || !phone) {
+      alert("❗ All fields are required");
+      return false;
+    }
+
+    if (!usernameRegex.test(username)) {
+      alert("❌ Username must contain only letters (no numbers/symbols)");
+      return false;
+    }
+
+    if (!email.endsWith("@gmail.com")) {
+      alert("❌ Email must be a valid Gmail (e.g., user@gmail.com)");
+      return false;
+    }
+
+    if (!phoneRegex.test(phone)) {
+      alert("❌ Phone number must be exactly 10 digits");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { username, password, email, phone } = formData;
-    if (!username || !password || !email || !phone) {
-      alert("All fields are required.");
-      return;
-    }
+
+    if (!validate()) return;
 
     try {
       setLoading(true);
@@ -45,10 +82,8 @@ const AddStaff = () => {
     }
   };
 
-  /* ---------- UI ---------- */
   return (
     <>
-      {/* inline <style> – saara CSS yahin pe */}
       <style>{`
         .card {
           max-width: 420px;
@@ -90,7 +125,6 @@ const AddStaff = () => {
           opacity: 0.7;
           cursor: not-allowed;
         }
-        /* ---------- responsive tweaks ---------- */
         @media (max-width: 480px) {
           .card {
             padding: 1.5rem 1rem;
@@ -104,38 +138,52 @@ const AddStaff = () => {
 
       <div className="card">
         <h2>➕ Add Staff Member</h2>
-
         <form onSubmit={handleSubmit}>
           <input
             name="username"
-            placeholder="Username"
+            placeholder="Username (only letters)"
             value={formData.username}
             onChange={handleChange}
           />
 
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              style={{ paddingRight: "2.5rem" }}
+            />
+            <span
+              onClick={() => setShowPassword((prev) => !prev)}
+              style={{
+                position: "absolute",
+                top: "50%",
+                right: "10px",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                fontSize: "1rem",
+                userSelect: "none",
+              }}
+            >
+              {showPassword ? "👁️" : "🙈"}
+            </span>
+          </div>
 
           <input
             name="email"
             type="email"
-            placeholder="Email"
+            placeholder="Email (must be gmail)"
             value={formData.email}
             onChange={handleChange}
           />
-
           <input
             name="phone"
-            placeholder="Phone"
+            placeholder="Phone (10 digits)"
             value={formData.phone}
             onChange={handleChange}
           />
-
           <button type="submit" disabled={loading}>
             {loading ? "Saving..." : "Save Staff"}
           </button>

@@ -1,12 +1,18 @@
-// src/components/AddProduct.js
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { toast } from "react-toastify";
+import BarcodeGenerator from "./BarcodeGenerator";
 import axios from "axios";
 import "./AddProduct.css";
 
-const AddProduct = ({ products = [], setProducts = () => {} }) => {
+// -------------------- CONSTANTS --------------------
+const HSN_REGEX = /^[A-Za-z0-9]{1,13}$/; // 1‒13 alphanumeric
+
+export default function AddProduct({ products = [], setProducts = () => {} }) {
+  /* -------------------------------------------------
+     STATE
+  ------------------------------------------------- */
   const [product, setProduct] = useState({
     category: "",
     productName: "",
@@ -16,15 +22,19 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
     stockQuantity: "",
     price: "",
     barcode: "",
+    hsn: "", // 👈 NEW
   });
 
+  const [autoGenerate, setAutoGenerate] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
   const [errors, setErrors] = useState({});
   const scannerRef = useRef(null);
   const navigate = useNavigate();
 
-  /* ------------ Barcode scanner logic ------------ */
+  /* -------------------------------------------------
+     BARCODE SCANNER
+  ------------------------------------------------- */
   useEffect(() => {
     if (scanning) {
       scannerRef.current = new Html5QrcodeScanner(
@@ -34,16 +44,43 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
       );
 
       scannerRef.current.render(
-        (decodedText) => {
+        async (decodedText) => {
           const trimmed = decodedText.trim();
+
           if (products.some((p) => p.barcode === trimmed)) {
             toast.error("Duplicate barcode scanned!");
-          } else {
-            setProduct((prev) => ({ ...prev, barcode: trimmed }));
-            setErrors((prev) => ({ ...prev, barcode: "" }));
-            toast.success("Barcode scanned!");
-            setScanning(false);
+            return;
           }
+
+          try {
+            const res = await axios.get(
+              `http://localhost:5000/api/products/barcode/${trimmed}`
+            );
+            const fetched = res.data;
+
+            setProduct((prev) => ({
+              ...prev,
+              category: fetched.category || "",
+              productName: fetched.product_name || "",
+              karat: fetched.karat || "",
+              weight: fetched.weight || "",
+              unit: fetched.unit || "",
+              stockQuantity: fetched.stock_quantity || "",
+              price: fetched.price || "",
+              barcode: fetched.barcode || "",
+              hsn: fetched.hsn || "",
+              barcodeImageBase64: "", // optional, will regenerate
+            }));
+
+            toast.success("Product details fetched from barcode ✅");
+          } catch (err) {
+            console.error("Barcode Fetch Error:", err);
+            toast.warning("Barcode scanned, but no matching product found.");
+            setProduct((prev) => ({ ...prev, barcode: trimmed }));
+          }
+
+          setErrors((prev) => ({ ...prev, barcode: "" }));
+          setScanning(false);
         },
         () => {}
       );
@@ -57,23 +94,29 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
     };
   }, [scanning, products]);
 
-  /* ------------ Helpers ------------ */
+  /* -------------------------------------------------
+     INPUT HANDLER
+  ------------------------------------------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // numeric validation
+    // simple numeric regex guards
     if (
       ["weight", "price"].includes(name) &&
       value !== "" &&
       !/^\d*\.?\d*$/.test(value)
     )
       return;
-    if (name === "stockQuantity" && value !== "" && !/^\d*$/.test(value)) return;
+    if (name === "stockQuantity" && value !== "" && !/^\d*$/.test(value))
+      return;
 
     setProduct((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  /* -------------------------------------------------
+     VALIDATION
+  ------------------------------------------------- */
   const validate = () => {
     const newErr = {};
     const {
@@ -85,12 +128,14 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
       stockQuantity,
       price,
       barcode,
+      hsn,
     } = product;
 
     if (!category.trim()) newErr.category = "Category is required.";
     if (!productName.trim()) newErr.productName = "Product name is required.";
     if (!karat.trim()) newErr.karat = "Karat is required.";
-    if (!weight.trim() || Number(weight) <= 0) newErr.weight = "Invalid weight.";
+    if (!weight.trim() || Number(weight) <= 0)
+      newErr.weight = "Invalid weight.";
     if (!unit.trim()) newErr.unit = "Unit is required.";
     if (
       stockQuantity === "" ||
@@ -99,17 +144,27 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
     )
       newErr.stockQuantity = "Invalid stock quantity.";
     if (price === "" || Number(price) < 0) newErr.price = "Invalid price.";
-    if (!barcode.trim()) {
-      newErr.barcode = "Barcode is required.";
-    } else if (products.some((p) => p.barcode === barcode.trim())) {
+
+    // HSN validation
+    if (!hsn.trim()) newErr.hsn = "HSN is required.";
+    else if (!HSN_REGEX.test(hsn.trim())) newErr.hsn = "HSN 1-13 alphanumeric";
+    else if (products.some((p) => p.hsn === hsn.trim()))
+      newErr.hsn = "Duplicate HSN!";
+
+    // Barcode validation
+    if (!barcode.trim()) newErr.barcode = "Barcode is required.";
+    else if (barcode.trim().length > 13)
+      newErr.barcode = "Max 13 characters allowed.";
+    else if (products.some((p) => p.barcode === barcode.trim()))
       newErr.barcode = "Duplicate barcode!";
-    }
 
     setErrors(newErr);
     return Object.keys(newErr).length === 0;
   };
 
-  /* ------------ Submit ------------ */
+  /* -------------------------------------------------
+     SUBMIT
+  ------------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) {
@@ -118,18 +173,23 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
     }
 
     const payload = {
-      ...product,
+      category: product.category,
+      productName: product.productName,
+      karat: product.karat,
       weight: Number(product.weight || 0),
+      unit: product.unit.trim() || "gm",
       stockQuantity: Number(product.stockQuantity || 0),
       price: Number(product.price || 0),
       barcode: product.barcode.trim(),
-      unit: product.unit.trim() || "gm",
+      hsn: product.hsn.trim(),
+      barcodeImageBase64: product.barcodeImageBase64, 
     };
 
     try {
-      await axios.post("/api/products/add", payload); // baseURL handled via proxy or axios.defaults
+      await axios.post("http://localhost:5000/api/products/add", payload);
+      console.log("Payload:", payload);
       toast.success("Product added successfully 🎉");
-      setProducts((prev) => [...prev, payload]); // local update optional
+      setProducts((prev) => [...prev, { ...payload, source: "backend" }]);
       setProduct({
         category: "",
         productName: "",
@@ -139,44 +199,51 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
         stockQuantity: "",
         price: "",
         barcode: "",
+        hsn: "", // reset
       });
       navigate("/dashboard/masters/products");
     } catch (err) {
       const status = err.response?.status;
       const msg = err.response?.data?.message || "Server error";
-      if (status === 409) {
-        toast.error("Barcode already exists — use another.");
-      } else if (status === 400) {
-        toast.error(msg);
-      } else {
-        toast.error(`Add failed: ${msg}`);
-      }
+      if (status === 409) toast.error(msg);
+      else toast.error(`Add failed: ${msg}`);
       console.error("API Error:", err);
     }
   };
 
-  const setMode = (mode) => {
-    setManualEntry(mode === "manual");
+  /* -------------------------------------------------
+     MODE SWITCH (scanner / manual)
+  ------------------------------------------------- */
+
+  const setBarcodeMode = (mode) => {
     setScanning(false);
-    setProduct((prev) => ({ ...prev, barcode: "" }));
+    setManualEntry(mode === "manual");
+    setAutoGenerate(mode === "auto");
+
+    if (mode === "auto") {
+      const randomDigits = Math.floor(1000000000 + Math.random() * 9000000000); // 10 digits
+      const newCode = "BAR" + randomDigits; // Total 13 chars
+      setProduct((prev) => ({
+        ...prev,
+        barcode: newCode,
+        barcodeImageBase64: "", // reset image
+      }));
+    } else {
+      setProduct((prev) => ({ ...prev, barcode: "", barcodeImageBase64: "" }));
+    }
+
     setErrors((prev) => ({ ...prev, barcode: "" }));
   };
 
-  /* ------------ JSX ------------ */
+  /* -------------------------------------------------
+     RENDER
+  ------------------------------------------------- */
   return (
     <>
+      {/* Back Button */}
       <div>
         <button
-          style={{
-            backgroundColor: "#28a745",
-            color: "#fff",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "4px",
-            fontWeight: 600,
-            cursor: "pointer",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.12)",
-          }}
+          style={buttonBack}
           onClick={() => navigate("/dashboard/masters/products")}
         >
           Product List
@@ -197,7 +264,8 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
             { name: "unit", label: "Unit" },
             { name: "stockQuantity", label: "Stock Quantity", type: "number" },
             { name: "price", label: "Price", type: "number" },
-          ].map(({ name, label, type = "text", inputMode }) => (
+            { name: "hsn", label: "HSN Number", maxLength: 13 }, // 👈 NEW
+          ].map(({ name, label, type = "text", inputMode, maxLength }) => (
             <div key={name}>
               <input
                 type={type}
@@ -206,6 +274,7 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
                 value={product[name]}
                 onChange={handleChange}
                 inputMode={inputMode}
+                maxLength={maxLength}
                 style={{
                   width: "100%",
                   padding: 8,
@@ -219,7 +288,7 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
             </div>
           ))}
 
-          {/* Barcode */}
+          {/* Barcode Field + Barcode Image */}
           <div>
             <label>
               <strong>Barcode:</strong>
@@ -231,6 +300,7 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
               value={product.barcode}
               onChange={handleChange}
               disabled={scanning}
+              maxLength={13}
               style={{
                 width: "100%",
                 padding: 8,
@@ -241,25 +311,67 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
             {errors.barcode && (
               <small style={{ color: "red" }}>{errors.barcode}</small>
             )}
-          </div>
 
+            {/* Show Barcode Image When Available */}
+            {product.barcode.trim() && (
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <BarcodeGenerator
+                  value={product.barcode.trim()}
+                  onBase64Ready={(base64) =>
+                    setProduct((prev) => ({
+                      ...prev,
+                      barcodeImageBase64: base64,
+                    }))
+                  }
+                />
+                {/* 👇 ADD THIS LOADER BELOW */}
+                {!product.barcodeImageBase64 && (
+                  <small
+                    style={{ color: "#555", display: "block", marginTop: 10 }}
+                  >
+                    Generating barcode image...
+                  </small>
+                )}
+              </div>
+            )}
+          </div>
+          {/* Barcode Mode Selection */}
           <div style={{ marginBottom: 10 }}>
-            <button
-              type="button"
-              onClick={() => setMode("scanner")}
-              className={`toggle-btn ${!manualEntry ? "active" : ""}`}
-              disabled={scanning}
-            >
+            <label style={{ marginRight: 15 }}>
+              <input
+                type="radio"
+                name="barcodeMode"
+                value="scanner"
+                checked={!manualEntry && !autoGenerate}
+                onChange={() => setBarcodeMode("scanner")}
+                disabled={scanning}
+              />{" "}
               Scan Barcode
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("manual")}
-              className={`toggle-btn ${manualEntry ? "active" : ""}`}
-              disabled={scanning}
-            >
+            </label>
+
+            <label style={{ marginRight: 15 }}>
+              <input
+                type="radio"
+                name="barcodeMode"
+                value="manual"
+                checked={manualEntry}
+                onChange={() => setBarcodeMode("manual")}
+                disabled={scanning}
+              />{" "}
               Manual Entry
-            </button>
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                name="barcodeMode"
+                value="auto"
+                checked={autoGenerate}
+                onChange={() => setBarcodeMode("auto")}
+                disabled={scanning}
+              />{" "}
+              Auto Generate
+            </label>
           </div>
 
           {scanning && (
@@ -286,6 +398,18 @@ const AddProduct = ({ products = [], setProducts = () => {} }) => {
       </div>
     </>
   );
+}
+
+/* -------------------- STYLES -------------------- */
+const buttonBack = {
+  backgroundColor: "#28a745",
+  color: "#fff",
+  border: "none",
+  padding: "8px 16px",
+  borderRadius: "4px",
+  fontWeight: 600,
+  cursor: "pointer",
+  boxShadow: "0 2px 4px rgba(0,0,0,0.12)",
 };
 
 const styles = {
@@ -318,5 +442,3 @@ const styles = {
     fontSize: 16,
   },
 };
-
-export default AddProduct;

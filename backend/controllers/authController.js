@@ -2,6 +2,8 @@
 import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/generateToken.js";
+import { sendOTPEmail } from "../utils/sendEmail.js";
+// import { sendOTPSMS } from "../utils/sendSMS.js"; // optional
 
 const otpStore = new Map(); // { email → { otp, generatedAt, verified } }
 
@@ -25,22 +27,35 @@ export const login = async (req, res) => {
   if (!username || !password || !role)
     return res.status(400).json({ message: "All fields required" });
 
+  let tableName = "";
+  if (role === "superadmin") tableName = "users";
+  else if (role === "staff") tableName = "staff";
+  else return res.status(400).json({ message: "Invalid role" });
+
   const [rows] = await pool.query(
-    "SELECT * FROM users WHERE username=? AND role=? AND is_active=1",
-    [username, role]
+    `SELECT * FROM ${tableName} WHERE username = ?`,
+    [username]
   );
+
   if (rows.length === 0)
     return res.status(401).json({ message: "Invalid credentials" });
 
   const user = rows[0];
+
+  // ✅ Strictly validate role match in DB
+  if (user.role?.toLowerCase() !== role.toLowerCase()) {
+    return res
+      .status(403)
+      .json({ message: "You are not authorized as this role." });
+  }
+
   const match = await bcrypt.compare(password, user.password);
   if (!match) return res.status(401).json({ message: "Invalid credentials" });
 
-  // log the successful login
-  await addLoginLog(user.id, user.username, user.role, req.ip, "login");
+  await addLoginLog(user.id, user.username, role, req.ip, "login");
 
-  const token = generateToken({ id: user.id, role: user.role });
-  const { password: _, ...safeUser } = user; // strip hashed password
+  const token = generateToken({ id: user.id, role });
+  const { password: _, ...safeUser } = user;
   res.json({ token, user: safeUser });
 };
 
@@ -63,29 +78,50 @@ export const logout = async (req, res) => {
 /* ──────────────────────────────
    POST /api/auth/forgot-password
 ──────────────────────────────── */
+
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: "Email required" });
 
-  const [[row]] = await pool.query("SELECT role FROM users WHERE email = ?", [
-    email,
-  ]);
-  if (!row)
-    return res
-      .status(404)
-      .json({ message: "No user registered with this email" });
+  try {
+    // Step 1: Check if user exists
+    const [[row]] = await pool.query("SELECT role FROM users WHERE email = ?", [
+      email,
+    ]);
 
-  if (row.role !== "superadmin")
-    return res.status(403).json({ message: "Only superadmin can reset here" });
+    if (!row) {
+      return res
+        .status(404)
+        .json({ message: "No user registered with this email" });
+    }
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore.set(email, { otp, generatedAt: Date.now(), verified: false });
+    // Step 2: Only allow superadmin reset
+    if (row.role !== "superadmin") {
+      return res
+        .status(403)
+        .json({ message: "Only superadmin can reset password" });
+    }
 
-  console.log(`🔐 OTP for ${email} => ${otp}`); // dev only
-  res.json({
-    message: "OTP sent to email",
-    otp: process.env.NODE_ENV === "development" ? otp : undefined,
-  });
+    // Step 3: Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore.set(email, {
+      otp,
+      generatedAt: Date.now(),
+      verified: false,
+    });
+
+    // Step 4: Send OTP via email
+    await sendOTPEmail(email, otp);
+
+    // ✅ Success response
+    res.json({
+      message: "OTP sent to your email address",
+      otp: process.env.NODE_ENV === "development" ? otp : undefined,
+    });
+  } catch (err) {
+    console.error("❌ Forgot Password Error:", err);
+    res.status(500).json({ message: "Server error. Please try again later." });
+  }
 };
 
 /* ──────────────────────────────
@@ -123,4 +159,21 @@ export const resetPassword = async (req, res) => {
 
   otpStore.delete(email);
   res.json({ message: "Password updated" });
+};
+
+/* ──────────────────────────────
+   GET /api/auth/logs
+──────────────────────────────── */
+export const getLoginLogs = async (_req, res) => {
+  try {
+    const [logs] = await pool.query(`
+      SELECT id, user_id, username, role, ip_address, action, logged_in_at
+      FROM login_logs
+      ORDER BY logged_in_at DESC
+    `);
+    res.json(logs);
+  } catch (err) {
+    console.error("GET LOGIN LOGS ERR:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
 };

@@ -1,89 +1,17 @@
-// backend/controllers/productController.js
 import db from "../config/db.js";
+import { addBarcodeToPdf } from "../utils/pdfBuilder.js";
+import { generateBarcodeBuffer } from "../utils/generateBarcodeBuffer.js";
+import { generateBulkBarcodePDF } from "../utils/pdfBuilder.js";
 
-/* =========================================================================
-   HELPERS
-========================================================================= */
-const safeStr = (val = "") => String(val ?? "").trim();
-const safeNum = (val) => (isNaN(Number(val)) ? 0 : Number(val));
 
-/* =========================================================================
-   BULK ADD  ->  POST /api/products/bulk
-========================================================================= */
-export const bulkAddProducts = async (req, res) => {
-  try {
-    const { products } = req.body;
-    if (!Array.isArray(products) || !products.length)
-      return res.status(400).json({ msg: "products array required" });
+/* ---------------- helpers ---------------- */
+const safeStr = (v = "") => String(v ?? "").trim();
+const safeNum = (v) => (isNaN(Number(v)) ? 0 : Number(v));
+const HSN_REGEX = /^[A-Za-z0-9]{1,13}$/;
 
-    /* ------------ 1. Duplicate barcode inside sheet ------------- */
-    const sheetBarcodes = products.map((p) => safeStr(p.barcode));
-    const dupInSheet = sheetBarcodes.filter(
-      (bc, idx) => sheetBarcodes.indexOf(bc) !== idx
-    );
-    if (dupInSheet.length)
-      return res
-        .status(400)
-        .json({ msg: `Duplicate barcode in sheet: ${dupInSheet[0]}` });
-
-    /* ------------ 2. Duplicate barcode vs DB -------------------- */
-    const [existing] = await db.query(
-      "SELECT barcode FROM products WHERE barcode IN (?)",
-      [sheetBarcodes]
-    );
-    if (existing.length)
-      return res
-        .status(409)
-        .json({ msg: `Barcode already exists: ${existing[0].barcode}` });
-
-    /* ------------ 3. Current max id -> new product_code --------- */
-    const [[{ maxId }]] = await db.query(
-      "SELECT MAX(id) AS maxId FROM products"
-    );
-    let seq = maxId || 0;
-
-    /* ------------ 4. Build VALUES array ------------------------- */
-    const values = products.map((p) => {
-      seq += 1;
-      const product_code = `P${String(seq).padStart(3, "0")}`;
-
-      p.product_code = product_code; // attach for response
-
-      return [
-        product_code,
-        safeStr(p.productName),
-        safeStr(p.category),
-        safeStr(p.karat),
-        safeNum(p.weight),
-        safeStr(p.unit),
-        safeNum(p.stockQuantity),
-        safeNum(p.price),
-        safeStr(p.barcode) ||
-          `BAR${Math.floor(100000000 + Math.random() * 900000000)}`,
-      ];
-    });
-
-    /* ------------ 5. Insert ------------------------------------- */
-    const q = `INSERT INTO products
-                 (product_code, product_name, category, karat, weight, unit,
-                  stock_quantity, price, barcode)
-               VALUES ?`;
-    await db.query(q, [values]);
-
-    /* ------------ 6. Respond ------------------------------------ */
-    const saved = products.map((p) => ({ ...p, source: "excel" }));
-    res.status(201).json({ saved });
-  } catch (err) {
-    console.error("BulkAddProducts Error:", err);
-    if (err.code === "ER_DUP_ENTRY")
-      return res.status(409).json({ msg: "Duplicate barcode" });
-    res.status(500).json({ msg: "DB error" });
-  }
-};
-
-/* =========================================================================
-   SINGLE ADD  ->  POST /api/products/add
-========================================================================= */
+/* =========================================================
+   ADD ONE  ->  POST /api/products/add
+========================================================= */
 export const addProduct = async (req, res) => {
   try {
     const {
@@ -95,6 +23,8 @@ export const addProduct = async (req, res) => {
       stockQuantity,
       price,
       barcode,
+      hsn,
+      barcodeImageBase64,
     } = req.body;
 
     if (
@@ -105,22 +35,51 @@ export const addProduct = async (req, res) => {
       !unit ||
       stockQuantity === "" ||
       price === "" ||
-      !barcode
-    ) {
+      !barcode ||
+      !hsn ||
+      !barcodeImageBase64
+    )
       return res.status(400).json({ message: "All fields are required" });
-    }
 
-    /* next product_code */
+    if (!HSN_REGEX.test(hsn))
+      return res.status(400).json({ message: "HSN must be 1-13 A-Z / 0-9" });
+
+    const [[dup]] = await db.query(
+      "SELECT barcode, hsn FROM products WHERE barcode = ? OR hsn = ?",
+      [barcode, hsn]
+    );
+    if (dup?.barcode === barcode)
+      return res.status(409).json({ message: "Duplicate barcode" });
+    if (dup?.hsn === hsn)
+      return res.status(409).json({ message: "Duplicate HSN number" });
+
+    // Convert base64 to Buffer
+    const base64Data = barcodeImageBase64.replace(
+      /^data:image\/\w+;base64,/,
+      ""
+    );
+    const barcodeBuffer = Buffer.from(base64Data, "base64");
+
+    // Create product code
     const [[{ maxId }]] = await db.query(
       "SELECT MAX(id) AS maxId FROM products"
     );
     const product_code = `P${String((maxId || 0) + 1).padStart(3, "0")}`;
 
+    // Generate and save barcode PDF
+    const dateTimeString = new Date().toLocaleString("en-IN", {
+      hour12: true,
+      timeZone: "Asia/Kolkata",
+    });
+    await addBarcodeToPdf(barcodeBuffer, dateTimeString, "single", barcode);
+
+    const barcode_image = null; // You can use local file path if needed
+
     await db.query(
       `INSERT INTO products
          (product_code, product_name, category, karat, weight, unit,
-          stock_quantity, price, barcode)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          stock_quantity, price, barcode, hsn, barcode_image)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
       [
         product_code,
         safeStr(productName),
@@ -131,21 +90,105 @@ export const addProduct = async (req, res) => {
         safeNum(stockQuantity),
         safeNum(price),
         safeStr(barcode),
+        safeStr(hsn),
+        barcode_image,
       ]
     );
 
     res.status(201).json({ message: "Product added", product_code });
   } catch (err) {
     console.error("AddProduct Error:", err);
-    if (err.code === "ER_DUP_ENTRY")
-      return res.status(409).json({ message: "Duplicate barcode" });
     res.status(500).json({ message: "DB error" });
   }
 };
 
-/* =========================================================================
-   GET ALL   ->  GET /api/products
-========================================================================= */
+/* =========================================================
+   BULK ADD  ->  POST /api/products/bulk
+========================================================= */
+export const bulkAddProducts = async (req, res) => {
+  try {
+    const { products } = req.body;
+    if (!Array.isArray(products) || !products.length)
+      return res.status(400).json({ msg: "products array required" });
+
+    const sheetBar = products.map((p) => safeStr(p.barcode));
+    const sheetHsn = products.map((p) => safeStr(p.hsn));
+    const dupBar = sheetBar.find((b, i) => sheetBar.indexOf(b) !== i);
+    const dupHsn = sheetHsn.find((h, i) => sheetHsn.indexOf(h) !== i);
+    if (dupBar)
+      return res.status(400).json({ msg: `Dup barcode in sheet: ${dupBar}` });
+    if (dupHsn)
+      return res.status(400).json({ msg: `Dup HSN in sheet: ${dupHsn}` });
+
+    const bad = products.find((p) => !HSN_REGEX.test(safeStr(p.hsn)));
+    if (bad) return res.status(400).json({ msg: `Invalid HSN: ${bad.hsn}` });
+
+    const [exist] = await db.query(
+      "SELECT barcode, hsn FROM products WHERE barcode IN (?) OR hsn IN (?)",
+      [sheetBar, sheetHsn]
+    );
+    if (exist.length)
+      return res
+        .status(409)
+        .json({ msg: `Duplicate in DB: ${exist[0].barcode || exist[0].hsn}` });
+
+    const [[{ maxId }]] = await db.query(
+      "SELECT MAX(id) AS maxId FROM products"
+    );
+    let seq = maxId || 0;
+
+    const values = products.map((p) => {
+      seq += 1;
+      const code = `P${String(seq).padStart(3, "0")}`;
+      p.product_code = code;
+      return [
+        code,
+        safeStr(p.productName),
+        safeStr(p.category),
+        safeStr(p.karat),
+        safeNum(p.weight),
+        safeStr(p.unit),
+        safeNum(p.stockQuantity),
+        safeNum(p.price),
+        safeStr(p.barcode),
+        safeStr(p.hsn),
+      ];
+    });
+
+    await db.query(
+      `INSERT INTO products
+        (product_code, product_name, category, karat, weight, unit,
+         stock_quantity, price, barcode, hsn)
+       VALUES ?`,
+      [values]
+    );
+    await generateBulkBarcodePDF(products);
+
+    res
+      .status(201)
+      .json({ saved: products.map((p) => ({ ...p, source: "excel" })) });
+  } catch (err) {
+    console.error("BulkAddProducts Error:", err);
+    res.status(500).json({ msg: "DB error" });
+  }
+};
+
+/* ===================== REMAINING CRUD ===================== */
+
+export const getProductByHSN = async (req, res) => {
+  const { hsn } = req.params;
+  try {
+    const [rows] = await db.query("SELECT * FROM products WHERE hsn = ?", [
+      hsn,
+    ]);
+    if (!rows.length) return res.status(404).json({ message: "HSN not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("GetProductByHSN Error:", err);
+    res.status(500).json({ message: "DB error" });
+  }
+};
+
 export const getProducts = async (_req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM products ORDER BY id DESC");
@@ -156,9 +199,6 @@ export const getProducts = async (_req, res) => {
   }
 };
 
-/* =========================================================================
-   GET ONE  ->  GET /api/products/:id   (id = product_code)
-========================================================================= */
 export const getProductById = async (req, res) => {
   const { id } = req.params;
   const [rows] = await db.query(
@@ -170,9 +210,6 @@ export const getProductById = async (req, res) => {
   res.json(rows[0]);
 };
 
-/* =========================================================================
-   UPDATE    ->  PUT /api/products/:id
-========================================================================= */
 export const updateProduct = async (req, res) => {
   const { id: product_code } = req.params;
   const { category, productName, karat, weight, unit, stockQuantity, price } =
@@ -218,9 +255,6 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-/* =========================================================================
-   DELETE    ->  DELETE /api/products/:id
-========================================================================= */
 export const deleteProduct = async (req, res) => {
   const { id: code } = req.params;
   try {
@@ -228,7 +262,6 @@ export const deleteProduct = async (req, res) => {
       "DELETE FROM products WHERE product_code = ?",
       [code]
     );
-
     if (!result.affectedRows)
       return res.status(404).json({ message: "Product not found" });
 
@@ -236,5 +269,37 @@ export const deleteProduct = async (req, res) => {
   } catch (err) {
     console.error("DeleteProduct Error:", err);
     res.status(500).json({ message: "DB error" });
+  }
+};
+
+export const getProductByBarcode = async (req, res) => {
+  const { barcode } = req.params;
+  try {
+    const [rows] = await db.query("SELECT * FROM products WHERE barcode = ?", [
+      barcode,
+    ]);
+    if (!rows.length)
+      return res.status(404).json({ message: "Barcode not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("GetProductByBarcode Error:", err);
+    res.status(500).json({ message: "DB error" });
+  }
+};
+
+export const getBarcodePdf = async (req, res) => {
+  const { barcode } = req.params;
+  try {
+    const buffer = await generateBarcodeBuffer(barcode);
+    const dateTime = new Date().toLocaleString("en-IN", {
+      hour12: true,
+      timeZone: "Asia/Kolkata",
+    });
+    await addBarcodeToPdf(buffer, dateTime, "single");
+
+    res.json({ message: "Barcode PDF generated" });
+  } catch (err) {
+    console.error("Barcode PDF generation error:", err);
+    res.status(500).json({ message: "Failed to generate barcode PDF" });
   }
 };

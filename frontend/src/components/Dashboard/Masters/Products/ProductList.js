@@ -1,19 +1,22 @@
-// src/pages/ProductList.jsx  (or wherever you keep it)
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProductList.css";
+import BarcodeGenerator from "./BarcodeGenerator";
 
-const ProductList = ({
+const ROWS_PER_PAGE = 20;
+
+export default function ProductList({
   products: propProducts,
   setProducts: setPropProducts,
-}) => {
+}) {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 20;
 
-  /* ------------ fetch products ---------- */
+  /* -------------------------------------------------
+     FETCH products from backend first, fallback localStorage
+  ------------------------------------------------- */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -21,16 +24,18 @@ const ProductList = ({
         if (!res.ok) throw new Error("API fetch failed");
         const dbRows = await res.json();
 
-        // map DB rows → camelCase object expected by table
+        /* map snake_case -> camelCase expected by table */
         const normalized = dbRows.map((r) => ({
-          id: r.id, // numeric id — may be unused
+          id: r.id,
           product_code: r.product_code,
           productName: r.product_name,
           category: r.category,
           karat: r.karat,
           unit: r.unit,
           weight: r.weight,
+          hsn: r.hsn,
           barcode: r.barcode,
+          barcode_image: r.barcode_image,
           stockQuantity: r.stock_quantity,
           price: r.price,
           source: "backend",
@@ -55,13 +60,15 @@ const ProductList = ({
     fetchProducts();
   }, [setPropProducts, propProducts]);
 
-  /* ------------ delete ---------- */
+  /* -------------------------------------------------
+     DELETE handler
+  ------------------------------------------------- */
   const handleDelete = async (code) => {
     const updated = products.filter((p) => p.product_code !== code);
     setProducts(updated);
     if (setPropProducts) setPropProducts(updated);
 
-    /* keep localStorage sync (optional) */
+    /* sync localStorage if you still use it */
     const added = updated.filter((p) => p.source !== "excel");
     const excel = updated.filter((p) => p.source === "excel");
     localStorage.setItem("addedProducts", JSON.stringify(added));
@@ -77,27 +84,31 @@ const ProductList = ({
     }
   };
 
-  /* ------------ filter + paginate ---------- */
+  /* -------------------------------------------------
+     SEARCH + PAGINATION
+  ------------------------------------------------- */
   const filtered = products.filter((p) => {
     const term = searchTerm.toLowerCase();
     return (
       p.productName?.toLowerCase().includes(term) ||
       p.category?.toLowerCase().includes(term) ||
-      p.barcode?.toLowerCase().includes(term)
+      p.barcode?.toLowerCase().includes(term) ||
+      p.hsn?.toLowerCase().includes(term) // 👈 NEW
     );
   });
 
-  const totalPages = Math.ceil(filtered.length / rowsPerPage);
+  const totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE) || 1;
   const displayed = filtered.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
+    (currentPage - 1) * ROWS_PER_PAGE,
+    currentPage * ROWS_PER_PAGE
   );
 
-  const handlePageChange = (n) => {
-    if (n >= 1 && n <= totalPages) setCurrentPage(n);
-  };
+  const handlePageChange = (n) =>
+    n >= 1 && n <= totalPages && setCurrentPage(n);
 
-  /* ------------ render ---------- */
+  /* -------------------------------------------------
+     RENDER
+  ------------------------------------------------- */
   return (
     <div className="product-list-container">
       <h2 className="product-list-heading">Product List</h2>
@@ -105,19 +116,23 @@ const ProductList = ({
       <input
         type="text"
         className="search-bar"
-        placeholder="Search by name, category or barcode"
+        placeholder="Search by name, category, barcode or HSN"
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
           setCurrentPage(1);
         }}
       />
-      
-    <button className="edit-btn" onClick={() => navigate("/dashboard/masters/products/add")}>
-      Add Product
-    </button>
-   <br />
-   <br />
+
+      <button
+        className="edit-btn"
+        onClick={() => navigate("/dashboard/masters/products/add")}
+      >
+        Add Product
+      </button>
+      <br />
+      <br />
+
       <div className="table-wrapper">
         <table className="product-table">
           <thead>
@@ -128,8 +143,10 @@ const ProductList = ({
               <th>Karat</th>
               <th>Unit</th>
               <th>Weight</th>
+              <th>HSN</th>
               <th>Barcode</th>
-              <th>Source</th>
+              <th>Barcode Image</th>
+              {/* <th>Source</th> */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -142,8 +159,26 @@ const ProductList = ({
                 <td>{p.karat || "-"}</td>
                 <td>{p.unit || "-"}</td>
                 <td>{p.weight || "-"}</td>
+                <td>{p.hsn || "-"}</td>
                 <td>{p.barcode || "-"}</td>
-                <td>{p.source || "backend"}</td>
+                <td>
+                  {p.barcode ? (
+                    <div style={{ textAlign: "center" }}>
+                      <BarcodeGenerator
+                        value={p.barcode}
+                        productName={p.productName}
+                        price={p.price}
+                        hideInfo={true}
+                        compact={true}
+                        showButtons={true} // 👈 this will show "Print" & "Download"
+                      />
+                    </div>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+
+                {/* <td>{p.source || "backend"}</td> */}
                 <td>
                   <button
                     className="edit-btn"
@@ -158,7 +193,15 @@ const ProductList = ({
                   </button>
                   <button
                     className="delete-btn"
-                    onClick={() => handleDelete(p.product_code)}
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Are you sure you want to delete this product?"
+                        )
+                      ) {
+                        handleDelete(p.product_code);
+                      }
+                    }}
                     disabled={!p.product_code}
                   >
                     Delete
@@ -170,6 +213,7 @@ const ProductList = ({
         </table>
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="pagination">
           <button
@@ -197,6 +241,4 @@ const ProductList = ({
       )}
     </div>
   );
-};
-
-export default ProductList;
+}
