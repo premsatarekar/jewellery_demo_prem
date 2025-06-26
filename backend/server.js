@@ -20,17 +20,29 @@ import profileRoutes from "./routes/profileRoutes.js";
 import db from "./config/db.js"; // mysql2/promise pool
 
 // --------------------------
-//  App init
+//  App init
 // --------------------------
 const app = express();
 
+// ✅ ALLOW CORS FOR BOTH LOCALHOST & VERCEL
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://jewellery-demo-prem.vercel.app",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
