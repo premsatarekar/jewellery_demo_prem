@@ -1,8 +1,9 @@
 import axios from "axios";
 
-// fallback baseURL incase proxy is missing/disabled
-axios.defaults.baseURL = "http://localhost:5000";
-// enable credentials for future auth / cookies
-axios.defaults.withCredentials = true;
+// Dynamically use correct backend URL from .env
+const API = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:5000",
+  withCredentials: true,
+});
 
-export default axios;
+export default API;
