@@ -164,7 +164,10 @@ function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route path="/login" element={<AuthForm onLogin={handleLogin} />} />
+                <Route
+                  path="/login"
+                  element={<AuthForm onLogin={handleLogin} />}
+                />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/verify-otp" element={<OtpVerification />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
