@@ -28,7 +28,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
   "https://jewellery-demo-prem.vercel.app",
-  "https://jewellery-demo-prem-7nxzv3m6u-prems-projects-88fcd81d.vercel.app",
+  "https://jewellery-demo-prem-1.vercel.app",
 ];
 
 app.use(
