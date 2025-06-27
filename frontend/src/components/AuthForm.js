@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "./AuthForm.css";
+import API from "../api"; 
 
-// ⚙️ Backend base URL – change if server runs on different host/port
-const API_BASE = "http://localhost:5000/api/auth";
 
 export default function AuthForm({ onLogin }) {
   const navigate = useNavigate();
@@ -45,7 +43,7 @@ export default function AuthForm({ onLogin }) {
     const { username, password, role } = formData;
     try {
       setLoading(true);
-      const res = await axios.post(`${API_BASE}/login`, {
+      const res = await API.post("/auth/login", {
         username,
         password,
         role,
