@@ -1,18 +1,17 @@
-// SalesContext.js (backend‑ready)
+// SalesContext.js (backend‑ready + env support)
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
-const API = "http://localhost:5000/api/sales";
+const BASE = process.env.REACT_APP_API_BASE_URL;
+const API = `${BASE}/api/sales`;
 
 export const SalesContext = createContext();
 
 export const SalesProvider = ({ children }) => {
-  /* ---------------- state ---------------- */
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /* ---------------- helpers ---------------- */
   const fetchSales = useCallback(async () => {
     try {
       setLoading(true);
@@ -29,7 +28,6 @@ export const SalesProvider = ({ children }) => {
   const addSale = async (payload) => {
     try {
       const { data } = await axios.post(API + "/add", payload);
-      // Append to list optimistically
       setSales((prev) => [...prev, { id: data.id, ...payload }]);
       return data;
     } catch (err) {
@@ -48,15 +46,21 @@ export const SalesProvider = ({ children }) => {
     }
   };
 
-  /* ---------------- bootstrap ---------------- */
   useEffect(() => {
     fetchSales();
   }, [fetchSales]);
 
-  /* ---------------- provider ---------------- */
   return (
     <SalesContext.Provider
-      value={{ sales, setSales, loading, error, addSale, deleteSale, refresh: fetchSales }}
+      value={{
+        sales,
+        setSales,
+        loading,
+        error,
+        addSale,
+        deleteSale,
+        refresh: fetchSales,
+      }}
     >
       {children}
     </SalesContext.Provider>

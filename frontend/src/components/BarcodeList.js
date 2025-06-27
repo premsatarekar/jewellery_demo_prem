@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 export default function BarcodeList() {
   const [files, setFiles] = useState([]);
 
@@ -7,9 +9,7 @@ export default function BarcodeList() {
   useEffect(() => {
     const fetchPDFs = async () => {
       try {
-        const res = await fetch(
-          "http://localhost:5000/api/products/barcode-pdf/list"
-        );
+        const res = await fetch(`${API_BASE}/api/products/barcode-pdf/list`);
         const data = await res.json();
         setFiles(data);
       } catch (err) {
@@ -27,7 +27,7 @@ export default function BarcodeList() {
           <li key={idx}>
             {/* 👉 View PDF */}
             <a
-              href={`http://localhost:5000/barcodes/${file}`}
+              href={`${API_BASE}/barcodes/${file}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{ marginRight: "10px" }}
@@ -37,7 +37,7 @@ export default function BarcodeList() {
 
             {/* 👉 Download PDF */}
             <a
-              href={`http://localhost:5000/barcodes/${file}`}
+              href={`${API_BASE}/barcodes/${file}`}
               download
               style={{ color: "blue", fontSize: "14px" }}
             >

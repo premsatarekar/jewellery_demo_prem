@@ -4,7 +4,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./ProfilePages.css";
 
-const API = "http://localhost:5000/api/profile";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
+const API = `${API_BASE}/api/profile`;
 
 const EditProfile = () => {
   const navigate = useNavigate();

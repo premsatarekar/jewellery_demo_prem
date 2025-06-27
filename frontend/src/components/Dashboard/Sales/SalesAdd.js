@@ -6,7 +6,8 @@ import axios from "axios"; // ← NEW
 import BarcodeScannerComponent from "./BarcodeScannerComponent";
 import "./SalesAdd.css";
 
-const API_URL = "http://localhost:5000/api/sales"; // backend base
+const BASE = process.env.REACT_APP_API_BASE_URL;
+const API_URL = `${BASE}/api/sales`;
 
 const indianStates = [
   "Andhra Pradesh",
@@ -260,7 +261,7 @@ const SalesAdd = () => {
     async (barcode) => {
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/sales/barcode/${barcode}`
+          `${BASE}/api/sales/barcode/${barcode}`
         );
 
         const updated = [...lineItems];

@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./ProfilePages.css";
 
-const API = "http://localhost:5000/api/profile"; // backend base
+const API = process.env.REACT_APP_API_BASE_URL + "/api/profile";
+
 
 const ViewProfile = () => {
   const [user, setUser] = useState(null);

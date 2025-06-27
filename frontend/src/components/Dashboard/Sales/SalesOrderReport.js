@@ -4,13 +4,14 @@ import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./SalesOrderReport.css";
 
-const API = "http://localhost:5000/api/sales/report";
+const BASE = process.env.REACT_APP_API_BASE_URL;
+const API = `${BASE}/api/sales/report`;
 
 export default function SalesOrderReport() {
-  const [startDate, setStartDate] = useState(null); // Date | null
-  const [endDate, setEndDate] = useState(null); // Date | null
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [customerName, setCustomerName] = useState("");
-  const [reportType, setReportType] = useState("daily"); // daily / weekly / monthly / quarterly
+  const [reportType, setReportType] = useState("daily");
 
   const [sales, setSales] = useState([]);
   const [groupedSales, setGroupedSales] = useState([]);

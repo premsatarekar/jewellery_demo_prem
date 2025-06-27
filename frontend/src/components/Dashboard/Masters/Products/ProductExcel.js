@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import "./ProductExcel.css";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
-const API = "http://localhost:5000/api/products/bulk"; // 👈 NEW bulk route
+const API = `${API_BASE}/api/products/bulk`;
 
 export default function ProductExcel({ products, setProducts }) {
   const [dragOver, setDragOver] = useState(false);

@@ -6,6 +6,9 @@ import BarcodeGenerator from "./BarcodeGenerator";
 import axios from "axios";
 import "./AddProduct.css";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
+
 // -------------------- CONSTANTS --------------------
 const HSN_REGEX = /^[A-Za-z0-9]{1,13}$/; // 1‒13 alphanumeric
 
@@ -54,8 +57,9 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
 
           try {
             const res = await axios.get(
-              `http://localhost:5000/api/products/barcode/${trimmed}`
+              `${API_BASE}/api/products/barcode/${trimmed}`
             );
+
             const fetched = res.data;
 
             setProduct((prev) => ({
@@ -182,11 +186,11 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
       price: Number(product.price || 0),
       barcode: product.barcode.trim(),
       hsn: product.hsn.trim(),
-      barcodeImageBase64: product.barcodeImageBase64, 
+      barcodeImageBase64: product.barcodeImageBase64,
     };
 
     try {
-      await axios.post("http://localhost:5000/api/products/add", payload);
+      await axios.post(`${API_BASE}/api/products/add`, payload);
       console.log("Payload:", payload);
       toast.success("Product added successfully 🎉");
       setProducts((prev) => [...prev, { ...payload, source: "backend" }]);

@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./ProfileSettings.css";
 
-const API_PROFILE = "http://localhost:5000/api/profile";
-const API_LOGOUT = "http://localhost:5000/api/auth/logout";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
+const API_PROFILE = `${API_BASE}/api/profile`;
+const API_LOGOUT = `${API_BASE}/api/auth/logout`;
 
 export default function ProfileSettings({ onLogout }) {
   /* ----------------------- local state ----------------------- */

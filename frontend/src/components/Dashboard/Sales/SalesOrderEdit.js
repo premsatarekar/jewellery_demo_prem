@@ -4,7 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./SalesOrderEdit.css";
 
-const API = "http://localhost:5000/api/sales";
+const BASE = process.env.REACT_APP_API_BASE_URL;
+const API = `${BASE}/api/sales`;
 
 const indianStates = [
   "Andhra Pradesh",

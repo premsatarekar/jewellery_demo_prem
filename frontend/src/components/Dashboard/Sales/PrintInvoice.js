@@ -5,8 +5,10 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-const API_SALES = "http://localhost:5000/api/sales";
-const API_PROFILE = "http://localhost:5000/api/profile";
+// ✅ Use env base URL
+const BASE = process.env.REACT_APP_API_BASE_URL;
+const API_SALES = `${BASE}/api/sales`;
+const API_PROFILE = `${BASE}/api/profile`;
 
 export default function PrintInvoice() {
   const { invoiceNo } = useParams(); // /dashboard/sales/print-invoice/:invoiceNo
@@ -24,7 +26,6 @@ export default function PrintInvoice() {
     mobile: "(123) 456-7890",
   });
 
-  /* ---------- fetch invoice + shop profile ---------- */
   useEffect(() => {
     (async () => {
       try {

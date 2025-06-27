@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./AuthForm.css";
 
-const API_BASE = "http://localhost:5000/api/auth";
+const API_BASE = process.env.REACT_APP_API_BASE_URL + "/api/auth";
 
 export default function OtpVerification() {
   const [otp, setOtp] = useState("");

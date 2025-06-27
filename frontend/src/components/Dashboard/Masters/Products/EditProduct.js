@@ -4,6 +4,8 @@ import axios from "axios";
 import "./EditProduct.css";
 import BarcodeGenerator from "./BarcodeGenerator";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 export default function EditProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function EditProduct() {
   // ================= FETCH =================
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/products/${id}`)
+      .get(`${API_BASE}/api/products/${id}`)
       .then((res) => {
         const p = res.data;
         setProduct({
@@ -43,7 +45,7 @@ export default function EditProduct() {
         // 🔥 FIRE PDF SAVE FOR BARCODE
         if (p.barcode) {
           axios
-            .get(`http://localhost:5000/api/products/barcode/pdf/${p.barcode}`)
+            .get(`${API_BASE}/api/products/barcode/pdf/${p.barcode}`)
             .then(() => console.log("✅ Barcode PDF saved"))
             .catch((err) =>
               console.error("❌ Failed to save barcode PDF", err)
@@ -110,7 +112,7 @@ export default function EditProduct() {
     };
 
     axios
-      .put(`http://localhost:5000/api/products/${id}`, payload)
+      .put(`${API_BASE}/api/products/${id}`, payload)
       .then(() => {
         alert("✅ Product updated successfully");
         navigate("/dashboard/masters/products");

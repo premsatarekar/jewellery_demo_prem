@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./ProductList.css";
 import BarcodeGenerator from "./BarcodeGenerator";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const ROWS_PER_PAGE = 20;
 
 export default function ProductList({
@@ -20,7 +22,7 @@ export default function ProductList({
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/products");
+        const res = await fetch(`${API_BASE}/api/products`);
         if (!res.ok) throw new Error("API fetch failed");
         const dbRows = await res.json();
 
@@ -75,9 +77,10 @@ export default function ProductList({
     localStorage.setItem("excelProducts", JSON.stringify(excel));
 
     try {
-      await fetch(`http://localhost:5000/api/products/${code}`, {
+      await fetch(`${API_BASE}/api/products/${code}`, {
         method: "DELETE",
       });
+
       console.log("Deleted on backend:", code);
     } catch (err) {
       console.warn("Delete failed on backend:", err);

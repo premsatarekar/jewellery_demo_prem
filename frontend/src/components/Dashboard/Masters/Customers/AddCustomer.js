@@ -4,6 +4,8 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import "./AddCustomer.css";
 
+const API = process.env.REACT_APP_API_BASE_URL + "/api/customer/add";
+
 const AddCustomer = () => {
   const navigate = useNavigate();
   const { customers, setCustomers } = useOutletContext();
@@ -84,10 +86,7 @@ const AddCustomer = () => {
     if (!validate()) return;
 
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/customer/add",
-        form
-      );
+      const { data } = await axios.post(API, form);
 
       const newCustomer = { ...form, id: data.id };
       setCustomers([...customers, newCustomer]);
