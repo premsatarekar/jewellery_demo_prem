@@ -9,7 +9,7 @@ import "./AdminDashboard.css"; // keep existing styles
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, loadingUser } = useUser(); // ✅ moved here correctly
-  const { categories = [], updateCategoryPrices } = useCategory();
+  const { categories = [], updateCategoryPrices, loading } = useCategory();
 
   const [basePrices, setBasePrices] = useState({});
   const [updatingIds, setUpdatingIds] = useState(new Set());
@@ -118,45 +118,56 @@ const AdminDashboard = () => {
           <h3 style={{ marginTop: "30px" }}>Today's Prices</h3>
 
           <div className="category-card-container">
-            {categories.map((cat) => (
+            {loading ? (
               <div
-                className={`category-card ${cat.name.toLowerCase()}`}
-                key={cat.id}
+                className="loader"
+                style={{ textAlign: "center", fontSize: "18px" }}
               >
-                <h4>{cat.name}</h4>
-
-                <input
-                  type="number"
-                  className="price-input"
-                  placeholder="Enter base price"
-                  value={basePrices[cat.name] || ""}
-                  onChange={(e) => handleChange(cat.name, e.target.value)}
-                  min="0"
-                  step="0.01"
-                />
-
-                <button
-                  className="update-button"
-                  onClick={() => handleUpdate(cat)}
-                  disabled={updatingIds.has(cat.id)}
-                >
-                  {updatingIds.has(cat.id) ? "Updating..." : "Update"}
-                </button>
-
-                <div className="carat-prices">
-                  {cat.carats.map((c, idx) => (
-                    <p key={idx}>
-                      {c.name}K: ₹
-                      {typeof c.price === "number"
-                        ? c.price.toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                          })
-                        : "0.00"}
-                    </p>
-                  ))}
-                </div>
+                ⏳ Loading categories...
               </div>
-            ))}
+            ) : (
+              Array.isArray(categories) &&
+              categories.map((cat) => (
+                <div
+                  className={`category-card ${cat.name.toLowerCase()}`}
+                  key={cat.id}
+                >
+                  <h4>{cat.name}</h4>
+
+                  <input
+                    type="number"
+                    className="price-input"
+                    placeholder="Enter base price"
+                    value={basePrices[cat.name] || ""}
+                    onChange={(e) => handleChange(cat.name, e.target.value)}
+                    min="0"
+                    step="0.01"
+                  />
+
+                  <button
+                    className="update-button"
+                    onClick={() => handleUpdate(cat)}
+                    disabled={updatingIds.has(cat.id)}
+                  >
+                    {updatingIds.has(cat.id) ? "Updating..." : "Update"}
+                  </button>
+
+                  <div className="carat-prices">
+                    {Array.isArray(cat.carats) &&
+                      cat.carats.map((c, idx) => (
+                        <p key={idx}>
+                          {c.name}K: ₹
+                          {typeof c.price === "number"
+                            ? c.price.toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                              })
+                            : "0.00"}
+                        </p>
+                      ))}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </>
       )}
