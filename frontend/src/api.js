@@ -1,8 +1,9 @@
+// src/api.js
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:5000",
-  withCredentials: true,
+  baseURL: "https://jewellery-demo-prem-1.onrender.com/api", // ✅ yeh tera backend ka URL
+  withCredentials: true, // optional if you're using cookies
 });
 
 export default API;

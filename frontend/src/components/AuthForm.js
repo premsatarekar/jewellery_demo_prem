@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "./AuthForm.css";
-import API from "../api"; 
-
+import API from "../api";
 
 export default function AuthForm({ onLogin }) {
   const navigate = useNavigate();

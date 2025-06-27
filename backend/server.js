@@ -29,6 +29,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://jewellery-demo-prem.vercel.app",
   "https://jewellery-demo-prem-1.vercel.app",
+  "https://jewellery-demo-prem-1.onrender.com", 
 ];
 
 app.use(
