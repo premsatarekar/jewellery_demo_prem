@@ -8,7 +8,6 @@ import "./AddProduct.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
-
 // -------------------- CONSTANTS --------------------
 const HSN_REGEX = /^[A-Za-z0-9]{1,13}$/; // 1‒13 alphanumeric
 
