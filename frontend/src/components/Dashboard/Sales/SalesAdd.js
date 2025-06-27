@@ -1,4 +1,3 @@
-// SalesAdd.js
 // SalesAdd.js (backend‑connected version, UI unchanged)
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
