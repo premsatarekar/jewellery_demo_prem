@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const ViewStaff = () => {
   const navigate = useNavigate();
   const [staffList, setStaffList] = useState([]);
@@ -10,7 +12,7 @@ const ViewStaff = () => {
   useEffect(() => {
     const fetchStaff = async () => {
       try {
-        const { data } = await axios.get("/api/staff");
+        const { data } = await axios.get(`${API_BASE}/api/staff`);
         setStaffList(data);
       } catch (err) {
         console.error("❌ Staff fetch failed:", err);
@@ -25,7 +27,7 @@ const ViewStaff = () => {
   const handleEdit = async (idx, updated) => {
     const id = staffList[idx].id;
     try {
-      await axios.put(`/api/staff/${id}`, updated);
+      await axios.put(`${API_BASE}/api/staff/${id}`, updated);
       const newList = [...staffList];
       newList[idx] = { ...updated, id };
       setStaffList(newList);
@@ -40,7 +42,7 @@ const ViewStaff = () => {
     if (!window.confirm("Are you sure you want to delete this staff member?"))
       return;
     try {
-      await axios.delete(`/api/staff/${id}`);
+      await axios.delete(`${API_BASE}/api/staff/${id}`);
       setStaffList((prev) => prev.filter((_, i) => i !== idx));
     } catch (err) {
       console.error("❌ Delete failed:", err);
@@ -156,7 +158,7 @@ const ViewStaff = () => {
               {staffList.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="5"
                     style={{ textAlign: "center", padding: "1rem" }}
                   >
                     No staff members found.
@@ -188,7 +190,6 @@ const StaffRow = ({ index, staff, onEdit, onDelete }) => {
   const handleSave = () => {
     if (
       !edited.username.trim() ||
-      !edited.password.trim() ||
       !edited.email.trim() ||
       !edited.phone.trim()
     ) {
@@ -221,31 +222,19 @@ const StaffRow = ({ index, staff, onEdit, onDelete }) => {
       <td style={{ textAlign: "center" }}>
         {isEditing ? (
           <>
-            <button className="action-btn" title="Save" onClick={handleSave}>
+            <button className="action-btn" onClick={handleSave}>
               💾 Save
             </button>
-            <button
-              className="action-btn"
-              title="Cancel"
-              onClick={() => setIsEditing(false)}
-            >
+            <button className="action-btn" onClick={() => setIsEditing(false)}>
               ❌ Cancel
             </button>
           </>
         ) : (
           <>
-            <button
-              className="action-btn"
-              title="Edit"
-              onClick={() => setIsEditing(true)}
-            >
+            <button className="action-btn" onClick={() => setIsEditing(true)}>
               ✏️ Edit
             </button>
-            <button
-              className="action-btn"
-              title="Delete"
-              onClick={() => onDelete(index)}
-            >
+            <button className="action-btn" onClick={() => onDelete(index)}>
               🗑️ Delete
             </button>
           </>

@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./StaffPage.css";
+import "./StaffPage.css"; // ✅ Make sure this file defines .staff-page, .add-btn, .view-btn
 
 export default function StaffPage() {
   const navigate = useNavigate();
@@ -9,6 +9,7 @@ export default function StaffPage() {
     <div className="staff-page">
       <h1>👥 Staff Management</h1>
       <p>This section is accessible only to Admin users.</p>
+
       <div className="staff-buttons">
         <button
           onClick={() => navigate("/dashboard/staff/add")}

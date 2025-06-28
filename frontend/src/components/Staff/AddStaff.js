@@ -67,7 +67,11 @@ const AddStaff = () => {
 
     try {
       setLoading(true);
-      await axios.post("/api/staff/add", formData);
+      await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/api/staff/add`,
+        formData
+      );
+
       alert("✅ Staff saved!");
       navigate("/dashboard/staff/view");
     } catch (err) {
