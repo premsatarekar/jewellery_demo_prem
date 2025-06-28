@@ -15,7 +15,14 @@ export const CategoryProvider = ({ children }) => {
   const fetchCategories = async () => {
     try {
       const { data } = await axios.get("/api/categories");
-      setCategories(data);
+
+      // 🔧 Fix carats for each category
+      const safeData = data.map((cat) => ({
+        ...cat,
+        carats: Array.isArray(cat.carats) ? cat.carats : [],
+      }));
+
+      setCategories(safeData); // ✅ now always safe to map
     } catch (err) {
       console.error("Fetch categories failed:", err);
     } finally {

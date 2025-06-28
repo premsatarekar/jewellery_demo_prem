@@ -153,8 +153,8 @@ const AdminDashboard = () => {
                   </button>
 
                   <div className="carat-prices">
-                    {Array.isArray(cat.carats) &&
-                      cat.carats.map((c, idx) => (
+                    {(Array.isArray(cat.carats) ? cat.carats : []).map(
+                      (c, idx) => (
                         <p key={idx}>
                           {c.name}K: ₹
                           {typeof c.price === "number"
@@ -163,7 +163,8 @@ const AdminDashboard = () => {
                               })
                             : "0.00"}
                         </p>
-                      ))}
+                      )
+                    )}
                   </div>
                 </div>
               ))

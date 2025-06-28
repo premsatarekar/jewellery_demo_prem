@@ -15,7 +15,12 @@ function ExpenseList() {
     (async () => {
       try {
         const { data } = await axios.get("/api/expenses");
-        setExpenses(data);
+        if (Array.isArray(data)) {
+          setExpenses(data);
+        } else {
+          console.error("Expected array but got:", data);
+          toast.error("Invalid data format received from server.");
+        }
       } catch (err) {
         console.error("FETCH EXPENSES ERR:", err);
         toast.error("Failed to load expenses");
@@ -39,9 +44,11 @@ function ExpenseList() {
   };
 
   /* ---------- filter ---------- */
-  const filteredExpenses = expenses.filter((expense) =>
-    expense.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredExpenses = Array.isArray(expenses)
+    ? expenses.filter((expense) =>
+        expense.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   /* ---------- UI ---------- */
   if (loading) return <p style={{ padding: "1rem" }}>Loading…</p>;
