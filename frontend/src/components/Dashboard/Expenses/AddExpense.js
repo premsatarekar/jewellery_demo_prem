@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";              // 🔹 NEW
+import axios from "axios"; // 🔹 NEW
 import { toast } from "react-toastify";
 import "./AddExpense.css";
+
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const AddExpense = () => {
   const navigate = useNavigate();
@@ -46,14 +48,12 @@ const AddExpense = () => {
 
     try {
       setSaving(true);
-      await axios.post("/api/expenses", payload);      // 🔹 BACKEND CALL
+      await axios.post(`${API_BASE}/api/expenses`, payload);
       toast.success("Expense added!", { autoClose: 1500 });
       navigate("/dashboard/expenses");
     } catch (err) {
       console.error("ADD EXPENSE ERR:", err);
-      toast.error(
-        err.response?.data?.msg || "Server error. Please try again."
-      );
+      toast.error(err.response?.data?.msg || "Server error. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -109,16 +109,10 @@ const AddExpense = () => {
             value={form.amount}
             onChange={handleChange}
           />
-          {errors.amount && (
-            <span className="error-msg">{errors.amount}</span>
-          )}
+          {errors.amount && <span className="error-msg">{errors.amount}</span>}
         </div>
 
-        <button
-          type="submit"
-          className="submit-expense"
-          disabled={saving}
-        >
+        <button type="submit" className="submit-expense" disabled={saving}>
           {saving ? "Saving…" : "Add Expense"}
         </button>
       </form>

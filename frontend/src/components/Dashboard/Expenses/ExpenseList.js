@@ -5,6 +5,8 @@ import axios from "axios";
 import "./ExpenseList.css";
 import { toast } from "react-toastify";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 function ExpenseList() {
   const [expenses, setExpenses] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,7 +16,7 @@ function ExpenseList() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get("/api/expenses");
+        const { data } = await axios.get(`${API_BASE}/api/expenses`);
         if (Array.isArray(data)) {
           setExpenses(data);
         } else {
@@ -34,7 +36,7 @@ function ExpenseList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this expense?")) return;
     try {
-      await axios.delete(`/api/expenses/${id}`);
+      await axios.delete(`${API_BASE}/api/expenses/${id}`);
       setExpenses((prev) => prev.filter((e) => e.id !== id));
       toast.success("Expense deleted");
     } catch (err) {

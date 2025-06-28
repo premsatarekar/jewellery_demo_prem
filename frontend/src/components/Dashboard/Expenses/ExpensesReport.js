@@ -3,6 +3,9 @@ import axios from "axios";
 import "./ExpensesReport.css";
 import { toast } from "react-toastify";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
+
 const ExpensesReport = () => {
   const [filterType, setFilterType] = useState("");
   const [allExpenses, setAllExpenses] = useState([]);
@@ -13,7 +16,7 @@ const ExpensesReport = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get("/api/expenses");
+        const { data } = await axios.get(`${API_BASE}/api/expenses`);
         setAllExpenses(data);
       } catch (err) {
         console.error("FETCH EXPENSES ERR:", err);

@@ -4,6 +4,8 @@ import axios from "axios";
 import "./EditExpense.css";
 import { toast } from "react-toastify";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const EditExpense = () => {
   const { id } = useParams(); // 🔹 it’s now id, not index
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ const EditExpense = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(`/api/expenses/${id}`);
+        const { data } = await axios.get(`${API_BASE}/api/expenses/${id}`);
         setFormData({
           name: data.name,
           date: data.date,
@@ -43,7 +45,7 @@ const EditExpense = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`/api/expenses/${id}`, {
+      await axios.put(`${API_BASE}/api/expenses/${id}`, {
         ...formData,
         amount: parseFloat(formData.amount),
       });
