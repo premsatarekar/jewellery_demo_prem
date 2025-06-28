@@ -8,23 +8,26 @@ export const useCategory = () => useContext(CategoryContext);
 
 /* ---------------- Provider ---------------- */
 export const CategoryProvider = ({ children }) => {
-  const [categories, setCategories] = useState([]); // saari categories
-  const [loading, setLoading] = useState(true); // loader
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   /* 🔹 1. reusable fetch – backend se list laa ke state bhar do */
   const fetchCategories = async () => {
     try {
-      const { data } = await axios.get("/api/categories");
+      const response = await axios.get("/api/categories");
+      const data = Array.isArray(response.data) ? response.data : [];
 
-      // 🔧 Fix carats for each category
+      console.log("✅ Safe Fetched data:", data);
+
       const safeData = data.map((cat) => ({
         ...cat,
         carats: Array.isArray(cat.carats) ? cat.carats : [],
       }));
 
-      setCategories(safeData); // ✅ now always safe to map
+      setCategories(safeData);
     } catch (err) {
-      console.error("Fetch categories failed:", err);
+      console.error("❌ Fetch categories failed:", err);
+      setCategories([]); // fallback in case of error
     } finally {
       setLoading(false);
     }
