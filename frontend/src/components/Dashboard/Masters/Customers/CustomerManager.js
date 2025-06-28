@@ -2,19 +2,21 @@
 import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
-
-
 function CustomerManager() {
   const [customers, setCustomers] = useState([]);
 
-  
-  // Load from localStorage initially
+  // ✅ Load from localStorage safely on mount
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("customers")) || [];
-    setCustomers(stored);
+    try {
+      const stored = JSON.parse(localStorage.getItem("customers"));
+      setCustomers(Array.isArray(stored) ? stored : []);
+    } catch (error) {
+      console.error("Failed to parse customers from localStorage", error);
+      setCustomers([]); // fallback to empty array
+    }
   }, []);
 
-  // Save to localStorage on change
+  // ✅ Save to localStorage when customers change
   useEffect(() => {
     localStorage.setItem("customers", JSON.stringify(customers));
   }, [customers]);

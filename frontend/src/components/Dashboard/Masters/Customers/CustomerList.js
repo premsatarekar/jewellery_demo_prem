@@ -9,25 +9,31 @@ const CustomerList = () => {
 
   /* ---------- state ---------- */
   const [customers, setCustomers] = useState([]);
-  const [loading,   setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   /* ---------- pagination ---------- */
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const totalPages = Math.ceil(customers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentCustomers = customers.slice(
-    startIndex,
-    startIndex + itemsPerPage
+  const totalPages = Math.ceil(
+    (Array.isArray(customers) ? customers.length : 0) / itemsPerPage
   );
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentCustomers = Array.isArray(customers)
+    ? customers.slice(startIndex, startIndex + itemsPerPage)
+    : [];
 
-  /* ---------- fetch once on mount ---------- */
+  /* ---------- fetch customers ---------- */
   useEffect(() => {
     (async () => {
       try {
         const { data } = await axios.get("/api/customer");
-        setCustomers(data);
+        if (Array.isArray(data)) {
+          setCustomers(data);
+        } else {
+          console.error("Invalid data format received:", data);
+          setCustomers([]);
+        }
       } catch (err) {
         console.error("Fetch customer failed:", err);
       } finally {
@@ -38,10 +44,11 @@ const CustomerList = () => {
 
   /* ---------- helpers ---------- */
   const getFullName = (c) =>
-    [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(" ") || "N/A";
+    [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(" ") ||
+    "N/A";
 
   const safe = (v, opt = false) =>
-    !v || v.trim() === "" ? (opt ? "Nil" : "N/A") : v;
+    !v || v.toString().trim() === "" ? (opt ? "Nil" : "N/A") : v;
 
   /* ---------- edit / delete ---------- */
   const handleEdit = (custId) =>
@@ -56,12 +63,14 @@ const CustomerList = () => {
 
     try {
       await axios.delete(`/api/customer/${custId}`);
-      setCustomers((prev) => prev.filter((c) => c.id !== custId));
+      const updated = customers.filter((c) => c.id !== custId);
+      setCustomers(updated);
 
-      // page adjust if last row deleted
-      setCurrentPage((p) =>
-        p > 1 && (customers.length - 1) <= (p - 1) * itemsPerPage ? p - 1 : p
-      );
+      // adjust page if current page becomes empty
+      const newTotalPages = Math.ceil(updated.length / itemsPerPage);
+      if (currentPage > newTotalPages) {
+        setCurrentPage((prev) => Math.max(1, prev - 1));
+      }
     } catch (err) {
       console.error(err);
       alert("Server error while deleting.");
@@ -96,9 +105,8 @@ const CustomerList = () => {
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody>
-            {currentCustomers.length ? (
+            {currentCustomers.length > 0 ? (
               currentCustomers.map((c, idx) => (
                 <tr key={c.id}>
                   <td>{startIndex + idx + 1}</td>
@@ -119,7 +127,8 @@ const CustomerList = () => {
                         title="Edit"
                         onClick={() => handleEdit(c.id)}
                         onKeyDown={(e) =>
-                          (e.key === "Enter" || e.key === " ") && handleEdit(c.id)
+                          (e.key === "Enter" || e.key === " ") &&
+                          handleEdit(c.id)
                         }
                       >
                         Edit
@@ -130,7 +139,8 @@ const CustomerList = () => {
                         title="Delete"
                         onClick={() => handleDelete(c.id)}
                         onKeyDown={(e) =>
-                          (e.key === "Enter" || e.key === " ") && handleDelete(c.id)
+                          (e.key === "Enter" || e.key === " ") &&
+                          handleDelete(c.id)
                         }
                       >
                         Delete
@@ -150,10 +160,12 @@ const CustomerList = () => {
         </table>
       </div>
 
-      {/* pagination */}
       {totalPages > 1 && (
         <div className="pagination-controls">
-          <button onClick={() => setCurrentPage((p) => p - 1)} disabled={currentPage === 1}>
+          <button
+            onClick={() => setCurrentPage((p) => p - 1)}
+            disabled={currentPage === 1}
+          >
             Prev
           </button>
           <span>
