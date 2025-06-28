@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./CustomerList.css";
 
+// ✅ Load environment variable
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const CustomerList = () => {
@@ -11,7 +12,6 @@ const CustomerList = () => {
 
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -56,7 +56,6 @@ const CustomerList = () => {
     try {
       await axios.delete(`${API_BASE}/api/customer/${custId}`);
       setCustomers((prev) => prev.filter((c) => c.id !== custId));
-
       setCurrentPage((p) =>
         p > 1 && customers.length - 1 <= (p - 1) * itemsPerPage ? p - 1 : p
       );

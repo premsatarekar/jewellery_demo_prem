@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "./EditCustomer.css";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 const EditCustomer = () => {
   /* -------- URL / router -------- */
   const { customerId } = useParams(); // `/edit/:customerId`
@@ -34,9 +35,8 @@ const EditCustomer = () => {
     (async () => {
       try {
         const { data } = await axios.get(
-          `https://jewellery-demo-backend.onrender.com/api/customer/${customerId}`
+          `${API_BASE}/api/customer/${customerId}`
         );
-
         setForm({
           firstName: data.first_name,
           middleName: data.middle_name || "",
@@ -54,6 +54,7 @@ const EditCustomer = () => {
         toast.error(
           err.response?.status === 404 ? "Customer not found" : "Server error"
         );
+        // user ko list page pe wapas le jao
         navigate("/dashboard/masters/customers/list");
       } finally {
         setLoading(false);
@@ -118,13 +119,16 @@ const EditCustomer = () => {
     };
 
     try {
-      await axios.put(
-        `https://jewellery-demo-backend.onrender.com/api/customer/${customerId}`,
-        payload
-      );
+      await axios.put(`${API_BASE}/api/customer/${customerId}`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
       toast.success("Customer updated!", { autoClose: 1500 });
+
       setTimeout(() => navigate("/dashboard/masters/customers/list"), 1600);
     } catch (err) {
+      console.error("Edit error:", err.response?.data || err.message);
+
       toast.error(
         err.response?.data?.msg ||
           (err.response?.status === 409
