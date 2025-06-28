@@ -1,5 +1,11 @@
 // src/components/Dashboard/Masters/Categories/CategoryContext.jsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import axios from "axios";
 
 /* ---------------- Context helpers ---------------- */
@@ -11,38 +17,33 @@ export const CategoryProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* 🔹 1. reusable fetch – backend se list laa ke state bhar do */
-  const fetchCategories = async () => {
+  const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
+  /* 🔹 1. Fetch all categories */
+  const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get("/api/categories");
-      const data = Array.isArray(response.data) ? response.data : [];
-
-      console.log("✅ Safe Fetched data:", data);
-
-      const safeData = data.map((cat) => ({
-        ...cat,
-        carats: Array.isArray(cat.carats) ? cat.carats : [],
-      }));
+      const { data } = await axios.get(`${API_BASE}/api/categories`);
+      const safeData = Array.isArray(data)
+        ? data.map((cat) => ({
+            ...cat,
+            carats: Array.isArray(cat.carats) ? cat.carats : [],
+          }))
+        : [];
 
       setCategories(safeData);
     } catch (err) {
       console.error("❌ Fetch categories failed:", err);
-      setCategories([]); // fallback in case of error
+      setCategories([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
 
-  /* component mount pe ek hi dafa call */
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  /* 🔹 2. add category */
+  /* 🔹 2. Add category */
   const addCategory = async (payload) => {
     try {
-      await axios.post("/api/categories/add", payload);
-      await fetchCategories(); // list refresh
+      await axios.post(`${API_BASE}/api/categories/add`, payload);
+      await fetchCategories();
       return { ok: true };
     } catch (err) {
       return {
@@ -53,24 +54,24 @@ export const CategoryProvider = ({ children }) => {
     }
   };
 
-  /* 🔹 3. update poori category (name, carats sab) */
+  /* 🔹 3. Update full category (name & carats) */
   const updateCategory = async (id, payload) => {
     try {
-      await axios.put(`/api/categories/${id}`, payload);
-      await fetchCategories(); // list refresh
+      await axios.put(`${API_BASE}/api/categories/${id}`, payload);
+      await fetchCategories();
       return { ok: true };
     } catch (err) {
-      return { ok: false, msg: err?.response?.data?.msg || "Server error" };
+      return {
+        ok: false,
+        msg: err?.response?.data?.msg || "Server error",
+      };
     }
   };
 
-  /* 🔹 4. **Sirf prices** update karne wala util – AdminDashboard me lagta hai */
+  /* 🔹 4. Update only prices */
   const updateCategoryPrices = async (id, updatedCatObj) => {
     try {
-      // backend ko PUT
-      await axios.put(`/api/categories/${id}`, updatedCatObj);
-
-      // optimistically local state bhi turant badal de
+      await axios.put(`${API_BASE}/api/categories/${id}`, updatedCatObj);
       setCategories((prev) =>
         prev.map((cat) => (cat.id === id ? updatedCatObj : cat))
       );
@@ -83,17 +84,22 @@ export const CategoryProvider = ({ children }) => {
     }
   };
 
-  /* 🔹 5. delete category */
+  /* 🔹 5. Delete category */
   const deleteCategory = async (id) => {
     try {
-      await axios.delete(`/api/categories/${id}`);
+      await axios.delete(`${API_BASE}/api/categories/${id}`);
       setCategories((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
-      console.error(err);
+      console.error("❌ Delete category failed:", err);
     }
   };
 
-  /* ---------------- Provider value ---------------- */
+  /* 🔹 Initial load */
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  /* 🔹 Context provider */
   return (
     <CategoryContext.Provider
       value={{
@@ -102,7 +108,7 @@ export const CategoryProvider = ({ children }) => {
         fetchCategories,
         addCategory,
         updateCategory,
-        updateCategoryPrices, // ✅ yahi function AdminDashboard use karega
+        updateCategoryPrices,
         deleteCategory,
       }}
     >

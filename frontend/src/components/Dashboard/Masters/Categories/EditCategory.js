@@ -1,13 +1,13 @@
 // src/components/Dashboard/Masters/Categories/EditCategory.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useCategory } from "./CategoryContext";          // ⬅️ backend‑connected hook
+import { useCategory } from "./CategoryContext";          
 import "./EditCategory.css";
 
 const EditCategory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { categories, loading, updateCategory } = useCategory(); // async updater
+  const { categories, loading, updateCategory } = useCategory(); 
 
   const [name, setName] = useState("");
   const [carats, setCarats] = useState([]);
@@ -48,7 +48,7 @@ const EditCategory = () => {
       })),
     };
 
-    const res = await updateCategory(Number(id), payload); // 🔗 PUT /api/categories/:id
+    const res = await updateCategory(Number(id), payload); 
     if (res.ok) navigate("/dashboard/masters/categories");
     else alert(res.msg);
   };

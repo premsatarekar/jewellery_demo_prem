@@ -2,21 +2,21 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useCategory } from "./CategoryContext";   // <-- context hook
+import { useCategory } from "./CategoryContext";
 import "react-toastify/dist/ReactToastify.css";
 import "./AddCategory.css";
 
 const AddCategory = () => {
   const navigate = useNavigate();
-  const { fetchCategories } = useCategory();       // <-- list refresh helper
+  const { fetchCategories } = useCategory();
 
   const [categoryName, setCategoryName] = useState("");
   const [carats, setCarats] = useState([{ name: "", price: "" }]);
   const [errors, setErrors] = useState({ category: false, carats: [] });
 
   /* -------------- helpers ---------------- */
-  const alphaRegex  = /^[A-Za-z\s]+$/;
-  const isPositive  = (v) => !isNaN(Number(v)) && Number(v) > 0;
+  const alphaRegex = /^[A-Za-z\s]+$/;
+  const isPositive = (v) => !isNaN(Number(v)) && Number(v) > 0;
 
   const handleCaratChange = (idx, field, val) => {
     setCarats((prev) => {
@@ -31,8 +31,9 @@ const AddCategory = () => {
     });
   };
 
-  const addCaratField    = () => setCarats((p) => [...p, { name: "", price: "" }]);
-  const removeCaratField = (idx) => setCarats((p) => p.filter((_, i) => i !== idx));
+  const addCaratField = () => setCarats((p) => [...p, { name: "", price: "" }]);
+  const removeCaratField = (idx) =>
+    setCarats((p) => p.filter((_, i) => i !== idx));
 
   /* -------------- submit ---------------- */
   const handleSubmit = async (e) => {
@@ -58,14 +59,18 @@ const AddCategory = () => {
     const payload = {
       name: categoryName.trim().toLowerCase(),
       carats: carats.map((c) => ({
-        name:  c.name.trim(),
+        name: c.name.trim(),
         price: c.price.trim(),
       })),
     };
 
     try {
-      await axios.post("/api/categories/add", payload); // backend call
-      await fetchCategories();                          // ⬅️ refresh list
+      await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/api/categories/add`,
+        payload
+      );
+
+      await fetchCategories(); // ⬅️ refresh list
       toast.success("✅ Category saved!", { autoClose: 2000 });
 
       setCategoryName("");
@@ -112,7 +117,8 @@ const AddCategory = () => {
             />
             {errors.category && (
               <div className="error-message" role="alert">
-                Category name is required and should contain only alphabets and spaces.
+                Category name is required and should contain only alphabets and
+                spaces.
               </div>
             )}
           </div>
@@ -127,7 +133,9 @@ const AddCategory = () => {
                   step="0.01"
                   placeholder="Carat"
                   value={carat.name}
-                  onChange={(e) => handleCaratChange(idx, "name", e.target.value)}
+                  onChange={(e) =>
+                    handleCaratChange(idx, "name", e.target.value)
+                  }
                   className={errors.carats[idx] ? "invalid" : ""}
                   required
                 />
@@ -139,7 +147,9 @@ const AddCategory = () => {
                   step="0.01"
                   placeholder="Price"
                   value={carat.price}
-                  onChange={(e) => handleCaratChange(idx, "price", e.target.value)}
+                  onChange={(e) =>
+                    handleCaratChange(idx, "price", e.target.value)
+                  }
                   className={errors.carats[idx] ? "invalid" : ""}
                   required
                 />
@@ -163,7 +173,11 @@ const AddCategory = () => {
 
           {/* Buttons */}
           <div className="button-container">
-            <button type="button" className="add-carat-btn" onClick={addCaratField}>
+            <button
+              type="button"
+              className="add-carat-btn"
+              onClick={addCaratField}
+            >
               ➕ Add Carat
             </button>
             <button type="submit" className="save-category-btn">
