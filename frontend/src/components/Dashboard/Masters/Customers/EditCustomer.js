@@ -7,16 +7,23 @@ import "./EditCustomer.css";
 
 const EditCustomer = () => {
   /* -------- URL / router -------- */
-  const { customerId } = useParams();          // `/edit/:customerId`
+  const { customerId } = useParams(); // `/edit/:customerId`
   const navigate = useNavigate();
 
   /* -------- state -------- */
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
-    firstName: "", middleName: "", lastName: "",
-    email: "", mobile: "", aadhar: "",
-    city: "", pin: "", referenceName: "",
-    referenceNo: "", address: "",
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    aadhar: "",
+    city: "",
+    pin: "",
+    referenceName: "",
+    referenceNo: "",
+    address: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -26,27 +33,27 @@ const EditCustomer = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(`/api/customer/${customerId}`);
+        const { data } = await axios.get(
+          `https://jewellery-demo-backend.onrender.com/api/customer/${customerId}`
+        );
+
         setForm({
-          firstName:  data.first_name,
+          firstName: data.first_name,
           middleName: data.middle_name || "",
-          lastName:   data.last_name,
-          email:      data.email || "",
-          mobile:     data.mobile,
-          aadhar:     data.aadhar,
-          city:       data.city,
-          pin:        data.pin_code,
+          lastName: data.last_name,
+          email: data.email || "",
+          mobile: data.mobile,
+          aadhar: data.aadhar,
+          city: data.city,
+          pin: data.pin_code,
           referenceName: data.reference_name || "",
-          referenceNo:   data.reference_no   || "",
-          address:    data.address,
+          referenceNo: data.reference_no || "",
+          address: data.address,
         });
       } catch (err) {
         toast.error(
-          err.response?.status === 404
-            ? "Customer not found"
-            : "Server error"
+          err.response?.status === 404 ? "Customer not found" : "Server error"
         );
-        // user ko list page pe wapas le jao
         navigate("/dashboard/masters/customers/list");
       } finally {
         setLoading(false);
@@ -75,12 +82,12 @@ const EditCustomer = () => {
   const validate = () => {
     const errs = {};
     if (!form.firstName.trim()) errs.firstName = "First name required";
-    if (!form.lastName.trim())  errs.lastName  = "Last name required";
-    if (!form.mobile.trim())    errs.mobile    = "Mobile required";
-    if (!form.aadhar.trim())    errs.aadhar    = "Aadhar required";
-    if (!form.city.trim())      errs.city      = "City required";
-    if (!form.pin.trim())       errs.pin       = "Pin required";
-    if (!form.address.trim())   errs.address   = "Address required";
+    if (!form.lastName.trim()) errs.lastName = "Last name required";
+    if (!form.mobile.trim()) errs.mobile = "Mobile required";
+    if (!form.aadhar.trim()) errs.aadhar = "Aadhar required";
+    if (!form.city.trim()) errs.city = "City required";
+    if (!form.pin.trim()) errs.pin = "Pin required";
+    if (!form.address.trim()) errs.address = "Address required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -111,12 +118,12 @@ const EditCustomer = () => {
     };
 
     try {
-      await axios.put(`/api/customer/${customerId}`, payload);
-      toast.success("Customer updated!", { autoClose: 1500 });
-      setTimeout(
-        () => navigate("/dashboard/masters/customers/list"),
-        1600
+      await axios.put(
+        `https://jewellery-demo-backend.onrender.com/api/customer/${customerId}`,
+        payload
       );
+      toast.success("Customer updated!", { autoClose: 1500 });
+      setTimeout(() => navigate("/dashboard/masters/customers/list"), 1600);
     } catch (err) {
       toast.error(
         err.response?.data?.msg ||

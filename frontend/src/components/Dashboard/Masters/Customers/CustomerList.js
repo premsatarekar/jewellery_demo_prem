@@ -4,53 +4,45 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./CustomerList.css";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const CustomerList = () => {
   const navigate = useNavigate();
 
-  /* ---------- state ---------- */
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ---------- pagination ---------- */
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const totalPages = Math.ceil(
-    (Array.isArray(customers) ? customers.length : 0) / itemsPerPage
-  );
+  const totalPages = Math.ceil(customers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentCustomers = Array.isArray(customers)
-    ? customers.slice(startIndex, startIndex + itemsPerPage)
-    : [];
+  const currentCustomers = customers.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
-  /* ---------- fetch customers ---------- */
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get("/api/customer");
-        if (Array.isArray(data)) {
-          setCustomers(data);
-        } else {
-          console.error("Invalid data format received:", data);
-          setCustomers([]);
-        }
+        const { data } = await axios.get(`${API_BASE}/api/customer`);
+        setCustomers(data);
       } catch (err) {
         console.error("Fetch customer failed:", err);
+        alert("Failed to fetch customers. Please check server or network.");
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  /* ---------- helpers ---------- */
   const getFullName = (c) =>
     [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(" ") ||
     "N/A";
 
   const safe = (v, opt = false) =>
-    !v || v.toString().trim() === "" ? (opt ? "Nil" : "N/A") : v;
+    !v || v.trim() === "" ? (opt ? "Nil" : "N/A") : v;
 
-  /* ---------- edit / delete ---------- */
   const handleEdit = (custId) =>
     navigate(`/dashboard/masters/customers/edit/${custId}`);
 
@@ -62,22 +54,18 @@ const CustomerList = () => {
       return;
 
     try {
-      await axios.delete(`/api/customer/${custId}`);
-      const updated = customers.filter((c) => c.id !== custId);
-      setCustomers(updated);
+      await axios.delete(`${API_BASE}/api/customer/${custId}`);
+      setCustomers((prev) => prev.filter((c) => c.id !== custId));
 
-      // adjust page if current page becomes empty
-      const newTotalPages = Math.ceil(updated.length / itemsPerPage);
-      if (currentPage > newTotalPages) {
-        setCurrentPage((prev) => Math.max(1, prev - 1));
-      }
+      setCurrentPage((p) =>
+        p > 1 && customers.length - 1 <= (p - 1) * itemsPerPage ? p - 1 : p
+      );
     } catch (err) {
-      console.error(err);
-      alert("Server error while deleting.");
+      console.error("Delete failed:", err);
+      alert("Server error while deleting customer.");
     }
   };
 
-  /* ---------- UI ---------- */
   if (loading) return <p>Loading…</p>;
 
   return (
@@ -105,8 +93,9 @@ const CustomerList = () => {
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {currentCustomers.length > 0 ? (
+            {currentCustomers.length ? (
               currentCustomers.map((c, idx) => (
                 <tr key={c.id}>
                   <td>{startIndex + idx + 1}</td>
