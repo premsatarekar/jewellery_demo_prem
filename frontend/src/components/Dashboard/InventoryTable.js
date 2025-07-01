@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const InventoryTable = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -13,12 +15,20 @@ const InventoryTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/products");
+        const res = await fetch(`${API_BASE}/api/products`);
+        const contentType = res.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+          const text = await res.text();
+          console.error("Invalid response (HTML received):", text);
+          throw new Error("Received HTML instead of JSON.");
+        }
+
         const json = await res.json();
         setData(json);
         setFiltered(json);
       } catch (err) {
-        console.error("Error fetching inventory:", err);
+        console.error("❌ Error fetching inventory:", err);
       }
     };
     fetchData();
@@ -64,10 +74,19 @@ const InventoryTable = () => {
     if (!window.confirm("Are you sure you want to delete this product?"))
       return;
     try {
-      const res = await fetch(`/api/products/${productCode}`, {
+      const res = await fetch(`${API_BASE}/api/products/${productCode}`, {
         method: "DELETE",
       });
+
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Invalid delete response (HTML received):", text);
+        throw new Error("Delete failed: HTML received");
+      }
+
       const json = await res.json();
+
       if (res.ok) {
         setData((prev) =>
           prev.filter((item) => item.product_code !== productCode)
@@ -75,13 +94,13 @@ const InventoryTable = () => {
         setFiltered((prev) =>
           prev.filter((item) => item.product_code !== productCode)
         );
-        alert("Product deleted successfully.");
+        alert("✅ Product deleted successfully.");
       } else {
-        alert(json.message || "Delete failed");
+        alert(json.message || "❌ Delete failed");
       }
     } catch (err) {
       console.error("Delete Error:", err);
-      alert("Error deleting product");
+      alert("❌ Error deleting product");
     }
   };
 
