@@ -1,28 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
-import { useUser } from "../../context/UserContext"; // user auth ctx
-import { useCategory } from "./Masters/Categories/CategoryContext"; // category ctx
-import "./AdminDashboard.css"; // keep existing styles
+import InventoryTable from "../Dashboard/InventoryTable";
+import { useUser } from "../../context/UserContext";
+import { useCategory } from "./Masters/Categories/CategoryContext";
+import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { user, loadingUser } = useUser(); // ✅ moved here correctly
+  const { user, loadingUser } = useUser();
   const { categories = [], updateCategoryPrices, loading } = useCategory();
 
   const [basePrices, setBasePrices] = useState({});
+  const [localCategories, setLocalCategories] = useState([]);
   const [updatingIds, setUpdatingIds] = useState(new Set());
 
-  // ✅ Wait till user is loaded
-  if (loadingUser) return null;
+  const [counts, setCounts] = useState({
+    products: 0,
+    vendors: 0,
+    customers: 0,
+  });
 
-  // ✅ Check role safely
-  const isSuperadmin = user?.role?.toLowerCase() === "superadmin";
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [prodRes, vendRes, custRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/vendors"),
+          fetch("/api/customers"),
+        ]);
 
-  /* ---------- helpers ---------- */
+        const checkRes = [prodRes, vendRes, custRes];
+        for (const res of checkRes) {
+          const contentType = res.headers.get("content-type") || "";
+          if (!contentType.includes("application/json")) {
+            const text = await res.text();
+            console.error("Invalid response:", text);
+            throw new Error("Received HTML instead of JSON.");
+          }
+        }
+
+        const [products, vendors, customers] = await Promise.all([
+          prodRes.json(),
+          vendRes.json(),
+          custRes.json(),
+        ]);
+
+        setCounts({
+          products: products.length,
+          vendors: vendors.length,
+          customers: customers.length,
+        });
+      } catch (err) {
+        console.error("❌ Failed to fetch dashboard counts", err);
+        toast.error("Failed to fetch dashboard data");
+      }
+    };
+
+    fetchCounts();
+  }, []);
+
   const categoryGroups = {
-    goldGroup: ["22k", "24k"],
+    goldGroup: ["22k", "24k", "18k", "14k"],
     diamondGroup: ["diamond"],
     platinumGroup: ["platinum"],
   };
@@ -34,23 +73,56 @@ const AdminDashboard = () => {
     return null;
   };
 
-  const getCaratWeight = (caratName) => {
-    if (!caratName || typeof caratName !== "string") return 1;
-    const match = caratName.match(/\d+(\.\d+)?/);
-    return match ? parseFloat(match[0]) : 1;
+  // ✅ Instead of raw carat number (e.g. 22), return real purity multiplier
+  const getCaratMultiplier = (caratName) => {
+    const name = caratName.toLowerCase();
+    if (name.includes("24")) return 1;
+    if (name.includes("22")) return 0.916;
+    if (name.includes("18")) return 0.75;
+    if (name.includes("14")) return 0.585;
+    return 1; // fallback
+  };
+
+  const formatCurrency = (value) => {
+    const num = parseFloat(value.replace(/[^0-9.]/g, ""));
+    if (isNaN(num)) return "";
+    return `₹ ${num.toLocaleString("en-IN", {
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  const parseNumeric = (value) => {
+    return value.replace(/[^0-9.]/g, "");
   };
 
   const handleChange = (name, val) => {
-    const clean = val.trim();
-    if (!/^\d*\.?\d*$/.test(clean)) return;
-    setBasePrices((prev) => ({ ...prev, [name]: clean }));
+    const numeric = parseNumeric(val);
+    if (!/^\d*\.?\d*$/.test(numeric)) return;
 
-    if (clean === "") {
-      const cat = categories.find((c) => c.name === name);
-      if (!cat) return;
-      const cleared = cat.carats.map((c) => ({ ...c, price: "" }));
-      updateCategoryPrices(cat.id, { ...cat, carats: cleared });
-    }
+    setBasePrices((prev) => ({ ...prev, [name]: numeric }));
+
+    const baseNum = parseFloat(numeric);
+    const grpName = findGroup(name);
+    const catsToUpdate = grpName
+      ? localCategories.filter((c) =>
+          categoryGroups[grpName].includes(c.name.toLowerCase())
+        )
+      : localCategories.filter((c) => c.name === name);
+
+    const updatedCats = localCategories.map((cat) => {
+      if (!catsToUpdate.find((c) => c.id === cat.id)) return cat;
+
+      const updatedCarats = cat.carats.map((ct) => ({
+        ...ct,
+        price:
+          !numeric || isNaN(baseNum)
+            ? ""
+            : +(baseNum * getCaratMultiplier(ct.name)).toFixed(2),
+      }));
+      return { ...cat, carats: updatedCarats };
+    });
+
+    setLocalCategories(updatedCats);
   };
 
   const handleUpdate = async (clickedCat) => {
@@ -67,20 +139,14 @@ const AdminDashboard = () => {
 
     const grpName = findGroup(clickedCat.name);
     const catsToUpdate = grpName
-      ? categories.filter((c) =>
+      ? localCategories.filter((c) =>
           categoryGroups[grpName].includes(c.name.toLowerCase())
         )
       : [clickedCat];
 
     try {
       await Promise.all(
-        catsToUpdate.map((cat) => {
-          const newCarats = cat.carats.map((ct) => ({
-            ...ct,
-            price: +(baseNum * getCaratWeight(ct.name)).toFixed(2),
-          }));
-          return updateCategoryPrices(cat.id, { ...cat, carats: newCarats });
-        })
+        catsToUpdate.map((cat) => updateCategoryPrices(cat.id, cat))
       );
       toast.success(`${clickedCat.name} prices updated!`);
     } catch (err) {
@@ -95,11 +161,79 @@ const AdminDashboard = () => {
     });
   };
 
+  useEffect(() => {
+    setLocalCategories(categories);
+
+    const calculatedBasePrices = {};
+    categories.forEach((cat) => {
+      if (!cat.carats || cat.carats.length === 0) return;
+
+      const firstCarat = cat.carats.find(
+        (ct) => ct.price !== "" && !isNaN(ct.price)
+      );
+      if (!firstCarat) return;
+
+      const multiplier = getCaratMultiplier(firstCarat.name);
+      const base = +(Number(firstCarat.price) / multiplier).toFixed(2);
+      calculatedBasePrices[cat.name] = String(base);
+    });
+
+    setBasePrices(calculatedBasePrices);
+  }, [categories]);
+
+  if (loadingUser) return null;
+
+  const isSuperadmin = user?.role?.toLowerCase() === "superadmin";
+
+  const dashboardStats = [
+    {
+      label: "Category",
+      count: categories.length,
+      color: "blue",
+      icon: "📦",
+      path: "/dashboard/masters/categories",
+    },
+    {
+      label: "Products",
+      count: counts.products,
+      color: "green",
+      icon: "🏷️",
+      path: "/dashboard/masters/products",
+    },
+    {
+      label: "Vendors",
+      count: counts.vendors,
+      color: "purple",
+      icon: "🚚",
+      path: "/dashboard/masters/vendors/list",
+    },
+    {
+      label: "Customers",
+      count: counts.customers,
+      color: "red",
+      icon: "👥",
+      path: "/dashboard/masters/customers/list",
+    },
+  ];
+
   return (
     <div style={{ padding: "40px" }}>
       <h2>Admin Dashboard</h2>
 
-      {/* Quick actions visible to everyone */}
+      <div className="top-stats-grid">
+        {dashboardStats.map((item, index) => (
+          <div
+            key={index}
+            className={`stat-box ${item.color}`}
+            onClick={() => navigate(item.path)}
+          >
+            <div className="stat-icon">{item.icon}</div>
+            <div className="stat-label">{item.label}</div>
+            <div className="stat-value">{item.count}</div>
+          </div>
+        ))}
+      </div>
+
       <div className="quick-actions centered-actions">
         <button onClick={() => navigate("/dashboard/masters/products/add")}>
           ➕ Add
@@ -112,38 +246,27 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      {/* ✅ Today's Prices for superadmin only */}
       {isSuperadmin && (
         <>
           <h3 style={{ marginTop: "30px" }}>Today's Prices</h3>
 
           <div className="category-card-container">
             {loading ? (
-              <div
-                className="loader"
-                style={{ textAlign: "center", fontSize: "18px" }}
-              >
-                ⏳ Loading categories...
-              </div>
+              <div className="loader">⏳ Loading categories...</div>
             ) : (
-              Array.isArray(categories) &&
-              categories.map((cat) => (
+              localCategories.map((cat) => (
                 <div
                   className={`category-card ${cat.name.toLowerCase()}`}
                   key={cat.id}
                 >
                   <h4>{cat.name}</h4>
-
                   <input
-                    type="number"
+                    type="text"
                     className="price-input"
                     placeholder="Enter base price"
-                    value={basePrices[cat.name] || ""}
+                    value={formatCurrency(basePrices[cat.name] || "")}
                     onChange={(e) => handleChange(cat.name, e.target.value)}
-                    min="0"
-                    step="0.01"
                   />
-
                   <button
                     className="update-button"
                     onClick={() => handleUpdate(cat)}
@@ -151,25 +274,21 @@ const AdminDashboard = () => {
                   >
                     {updatingIds.has(cat.id) ? "Updating..." : "Update"}
                   </button>
-
                   <div className="carat-prices">
-                    {(Array.isArray(cat.carats) ? cat.carats : []).map(
-                      (c, idx) => (
-                        <p key={idx}>
-                          {c.name}K: ₹
-                          {typeof c.price === "number"
-                            ? c.price.toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                              })
-                            : "0.00"}
-                        </p>
-                      )
-                    )}
+                    {(cat.carats || []).map((c, idx) => (
+                      <p key={idx}>
+                        {parseFloat(c.name)} Karat : ₹{" "}
+                        {Number(c.price || 0).toLocaleString("en-IN", {
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    ))}
                   </div>
                 </div>
               ))
             )}
           </div>
+          <InventoryTable />
         </>
       )}
     </div>

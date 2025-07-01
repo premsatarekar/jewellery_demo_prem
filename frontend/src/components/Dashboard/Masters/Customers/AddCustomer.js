@@ -4,7 +4,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import "./AddCustomer.css";
 
-const API = "https://jewellery-demo-backend.onrender.com/api/customer/add";
+const API = "https://jewellery-demo-prem-1.onrender.com/api/customer/add";
 
 const AddCustomer = () => {
   const navigate = useNavigate();
