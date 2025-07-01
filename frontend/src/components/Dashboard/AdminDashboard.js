@@ -6,6 +6,8 @@ import { useUser } from "../../context/UserContext";
 import { useCategory } from "./Masters/Categories/CategoryContext";
 import "./AdminDashboard.css";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, loadingUser } = useUser();
@@ -25,13 +27,14 @@ const AdminDashboard = () => {
     const fetchCounts = async () => {
       try {
         const [prodRes, vendRes, custRes] = await Promise.all([
-          fetch("/api/products"),
-          fetch("/api/vendors"),
-          fetch("/api/customers"),
+          fetch(`${API_BASE}/api/products`),
+          fetch(`${API_BASE}/api/vendors`),
+          fetch(`${API_BASE}/api/customers`),
         ]);
 
-        const checkRes = [prodRes, vendRes, custRes];
-        for (const res of checkRes) {
+        const responses = [prodRes, vendRes, custRes];
+
+        for (const res of responses) {
           const contentType = res.headers.get("content-type") || "";
           if (!contentType.includes("application/json")) {
             const text = await res.text();
@@ -73,14 +76,13 @@ const AdminDashboard = () => {
     return null;
   };
 
-  // ✅ Instead of raw carat number (e.g. 22), return real purity multiplier
   const getCaratMultiplier = (caratName) => {
     const name = caratName.toLowerCase();
     if (name.includes("24")) return 1;
     if (name.includes("22")) return 0.916;
     if (name.includes("18")) return 0.75;
     if (name.includes("14")) return 0.585;
-    return 1; // fallback
+    return 1;
   };
 
   const formatCurrency = (value) => {

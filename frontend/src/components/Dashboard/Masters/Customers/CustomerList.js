@@ -25,7 +25,7 @@ const CustomerList = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(`${API_BASE}/api/customer`);
+        const { data } = await axios.get(`${API_BASE}/api/customers`);
         setCustomers(data);
       } catch (err) {
         console.error("Fetch customer failed:", err);
@@ -54,7 +54,7 @@ const CustomerList = () => {
       return;
 
     try {
-      await axios.delete(`${API_BASE}/api/customer/${custId}`);
+      await axios.delete(`${API_BASE}/api/customers/${custId}`);
       setCustomers((prev) => prev.filter((c) => c.id !== custId));
       setCurrentPage((p) =>
         p > 1 && customers.length - 1 <= (p - 1) * itemsPerPage ? p - 1 : p
