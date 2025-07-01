@@ -35,7 +35,7 @@ const EditCustomer = () => {
     (async () => {
       try {
         const { data } = await axios.get(
-          `${API_BASE}/api/customer/${customerId}`
+          `${API_BASE}/api/customers/${customerId}`
         );
         setForm({
           firstName: data.first_name,
@@ -119,7 +119,7 @@ const EditCustomer = () => {
     };
 
     try {
-      await axios.put(`${API_BASE}/api/customer/${customerId}`, payload, {
+      await axios.put(`${API_BASE}/api/customers/${customerId}`, payload, {
         headers: { "Content-Type": "application/json" },
       });
 
