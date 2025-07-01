@@ -24,7 +24,7 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
     stockQuantity: "",
     price: "",
     barcode: "",
-    hsn: "", // 👈 NEW
+    hsn: "",
   });
 
   const [autoGenerate, setAutoGenerate] = useState(false);
@@ -72,7 +72,7 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
               price: fetched.price || "",
               barcode: fetched.barcode || "",
               hsn: fetched.hsn || "",
-              barcodeImageBase64: "", // optional, will regenerate
+              barcodeImageBase64: "",
             }));
 
             toast.success("Product details fetched from barcode ✅");
@@ -103,7 +103,6 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // simple numeric regex guards
     if (
       ["weight", "price"].includes(name) &&
       value !== "" &&
@@ -148,13 +147,11 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
       newErr.stockQuantity = "Invalid stock quantity.";
     if (price === "" || Number(price) < 0) newErr.price = "Invalid price.";
 
-    // HSN validation
     if (!hsn.trim()) newErr.hsn = "HSN is required.";
     else if (!HSN_REGEX.test(hsn.trim())) newErr.hsn = "HSN 1-13 alphanumeric";
     else if (products.some((p) => p.hsn === hsn.trim()))
       newErr.hsn = "Duplicate HSN!";
 
-    // Barcode validation
     if (!barcode.trim()) newErr.barcode = "Barcode is required.";
     else if (barcode.trim().length > 13)
       newErr.barcode = "Max 13 characters allowed.";
@@ -190,7 +187,6 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
 
     try {
       await axios.post(`${API_BASE}/api/products/add`, payload);
-      console.log("Payload:", payload);
       toast.success("Product added successfully 🎉");
       setProducts((prev) => [...prev, { ...payload, source: "backend" }]);
       setProduct({
@@ -202,7 +198,7 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
         stockQuantity: "",
         price: "",
         barcode: "",
-        hsn: "", // reset
+        hsn: "",
       });
       navigate("/dashboard/masters/products");
     } catch (err) {
@@ -217,19 +213,18 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
   /* -------------------------------------------------
      MODE SWITCH (scanner / manual)
   ------------------------------------------------- */
-
   const setBarcodeMode = (mode) => {
     setScanning(false);
     setManualEntry(mode === "manual");
     setAutoGenerate(mode === "auto");
 
     if (mode === "auto") {
-      const randomDigits = Math.floor(1000000000 + Math.random() * 9000000000); // 10 digits
-      const newCode = "BAR" + randomDigits; // Total 13 chars
+      const randomDigits = Math.floor(1000000000 + Math.random() * 9000000000);
+      const newCode = "BAR" + randomDigits;
       setProduct((prev) => ({
         ...prev,
         barcode: newCode,
-        barcodeImageBase64: "", // reset image
+        barcodeImageBase64: "",
       }));
     } else {
       setProduct((prev) => ({ ...prev, barcode: "", barcodeImageBase64: "" }));
@@ -238,86 +233,210 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
     setErrors((prev) => ({ ...prev, barcode: "" }));
   };
 
-  /* -------------------------------------------------
-     RENDER
-  ------------------------------------------------- */
   return (
-    <>
-      {/* Back Button */}
-      <div>
-        <button
-          style={buttonBack}
-          onClick={() => navigate("/dashboard/masters/products")}
-        >
-          Product List
-        </button>
+    <div className="add-product-container">
+      {/* Header Card */}
+      <div className="header-card">
+        <div className="header-content">
+          <h2>Add New Product</h2>
+          <button
+            className="back-button"
+            onClick={() => navigate("/dashboard/masters/products")}
+          >
+            Product List
+          </button>
+        </div>
       </div>
 
-      <br />
-      <br />
-
-      <div style={styles.container}>
-        <h2>Add Product</h2>
+      <div className="form-card">
         <form onSubmit={handleSubmit} noValidate>
-          {[
-            { name: "category", label: "Category" },
-            { name: "productName", label: "Product Name" },
-            { name: "karat", label: "Karat" },
-            { name: "weight", label: "Weight", inputMode: "decimal" },
-            { name: "unit", label: "Unit" },
-            { name: "stockQuantity", label: "Stock Quantity", type: "number" },
-            { name: "price", label: "Price", type: "number" },
-            { name: "hsn", label: "HSN Number", maxLength: 13 }, // 👈 NEW
-          ].map(({ name, label, type = "text", inputMode, maxLength }) => (
-            <div key={name}>
+          {/* First Row */}
+          <div className="form-row">
+            <div className="input-group">
+              <label>Category</label>
               <input
-                type={type}
-                name={name}
-                placeholder={label}
-                value={product[name]}
+                type="text"
+                name="category"
+                value={product.category}
                 onChange={handleChange}
-                inputMode={inputMode}
-                maxLength={maxLength}
-                style={{
-                  width: "100%",
-                  padding: 8,
-                  marginBottom: 10,
-                  borderColor: errors[name] ? "red" : "#ccc",
-                }}
+                className={errors.category ? "error" : ""}
               />
-              {errors[name] && (
-                <small style={{ color: "red" }}>{errors[name]}</small>
+              {errors.category && (
+                <div className="error-text">{errors.category}</div>
               )}
             </div>
-          ))}
 
-          {/* Barcode Field + Barcode Image */}
-          <div>
-            <label>
-              <strong>Barcode:</strong>
-            </label>
-            <input
-              type="text"
-              name="barcode"
-              placeholder="Scan or enter barcode"
-              value={product.barcode}
-              onChange={handleChange}
-              disabled={scanning}
-              maxLength={13}
-              style={{
-                width: "100%",
-                padding: 8,
-                marginBottom: 10,
-                borderColor: errors.barcode ? "red" : "#ccc",
-              }}
-            />
-            {errors.barcode && (
-              <small style={{ color: "red" }}>{errors.barcode}</small>
-            )}
+            <div className="input-group">
+              <label>Product Name</label>
+              <input
+                type="text"
+                name="productName"
+                value={product.productName}
+                onChange={handleChange}
+                className={errors.productName ? "error" : ""}
+              />
+              {errors.productName && (
+                <div className="error-text">{errors.productName}</div>
+              )}
+            </div>
 
-            {/* Show Barcode Image When Available */}
+            <div className="input-group">
+              <label>Karat</label>
+              <input
+                type="text"
+                name="karat"
+                value={product.karat}
+                onChange={handleChange}
+                className={errors.karat ? "error" : ""}
+              />
+              {errors.karat && <div className="error-text">{errors.karat}</div>}
+            </div>
+
+            <div className="input-group">
+              <label>Weight</label>
+              <input
+                type="text"
+                name="weight"
+                inputMode="decimal"
+                value={product.weight}
+                onChange={handleChange}
+                className={errors.weight ? "error" : ""}
+              />
+              {errors.weight && (
+                <div className="error-text">{errors.weight}</div>
+              )}
+            </div>
+          </div>
+
+          {/* Second Row */}
+          <div className="form-row">
+            <div className="input-group">
+              <label>Unit</label>
+              <input
+                type="text"
+                name="unit"
+                value={product.unit}
+                onChange={handleChange}
+                className={errors.unit ? "error" : ""}
+              />
+              {errors.unit && <div className="error-text">{errors.unit}</div>}
+            </div>
+
+            <div className="input-group">
+              <label>Stock Quantity</label>
+              <input
+                type="number"
+                name="stockQuantity"
+                value={product.stockQuantity}
+                onChange={handleChange}
+                className={errors.stockQuantity ? "error" : ""}
+              />
+              {errors.stockQuantity && (
+                <div className="error-text">{errors.stockQuantity}</div>
+              )}
+            </div>
+
+            <div className="input-group">
+              <label>Price</label>
+              <input
+                type="number"
+                name="price"
+                value={product.price}
+                onChange={handleChange}
+                className={errors.price ? "error" : ""}
+              />
+              {errors.price && <div className="error-text">{errors.price}</div>}
+            </div>
+
+            <div className="input-group">
+              <label>HSN Number</label>
+              <input
+                type="text"
+                name="hsn"
+                value={product.hsn}
+                onChange={handleChange}
+                maxLength={13}
+                className={errors.hsn ? "error" : ""}
+              />
+              {errors.hsn && <div className="error-text">{errors.hsn}</div>}
+            </div>
+          </div>
+
+          {/* Barcode Section */}
+          <div className="barcode-section">
+            <div className="barcode-controls">
+              <div className="barcode-input-group">
+                <label>Barcode</label>
+                <input
+                  type="text"
+                  name="barcode"
+                  placeholder="Scan or enter barcode"
+                  value={product.barcode}
+                  onChange={handleChange}
+                  disabled={scanning || autoGenerate}
+                  maxLength={13}
+                  className={errors.barcode ? "error" : ""}
+                />
+                {errors.barcode && (
+                  <div className="error-text">{errors.barcode}</div>
+                )}
+              </div>
+
+              <div className="barcode-options">
+                <div className="radio-group">
+                  <label>
+                    <input
+                      type="radio"
+                      name="barcodeMode"
+                      value="scanner"
+                      checked={!manualEntry && !autoGenerate}
+                      onChange={() => setBarcodeMode("scanner")}
+                      disabled={scanning}
+                    />
+                    <span>Scan Barcode</span>
+                  </label>
+
+                  <label>
+                    <input
+                      type="radio"
+                      name="barcodeMode"
+                      value="manual"
+                      checked={manualEntry}
+                      onChange={() => setBarcodeMode("manual")}
+                      disabled={scanning}
+                    />
+                    <span>Manual Entry</span>
+                  </label>
+
+                  <label>
+                    <input
+                      type="radio"
+                      name="barcodeMode"
+                      value="auto"
+                      checked={autoGenerate}
+                      onChange={() => setBarcodeMode("auto")}
+                      disabled={scanning}
+                    />
+                    <span>Auto Generate</span>
+                  </label>
+                </div>
+
+                {!scanning && !manualEntry && (
+                  <button
+                    type="button"
+                    onClick={() => setScanning(true)}
+                    className="scan-button"
+                  >
+                    Start Scan
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {scanning && <div id="reader" className="scanner-container"></div>}
+
             {product.barcode.trim() && (
-              <div style={{ textAlign: "center", margin: "20px 0" }}>
+              <div className="barcode-preview">
                 <BarcodeGenerator
                   value={product.barcode.trim()}
                   onBase64Ready={(base64) =>
@@ -327,121 +446,22 @@ export default function AddProduct({ products = [], setProducts = () => {} }) {
                     }))
                   }
                 />
-                {/* 👇 ADD THIS LOADER BELOW */}
                 {!product.barcodeImageBase64 && (
-                  <small
-                    style={{ color: "#555", display: "block", marginTop: 10 }}
-                  >
+                  <div className="barcode-loading">
                     Generating barcode image...
-                  </small>
+                  </div>
                 )}
               </div>
             )}
           </div>
-          {/* Barcode Mode Selection */}
-          <div style={{ marginBottom: 10 }}>
-            <label style={{ marginRight: 15 }}>
-              <input
-                type="radio"
-                name="barcodeMode"
-                value="scanner"
-                checked={!manualEntry && !autoGenerate}
-                onChange={() => setBarcodeMode("scanner")}
-                disabled={scanning}
-              />{" "}
-              Scan Barcode
-            </label>
 
-            <label style={{ marginRight: 15 }}>
-              <input
-                type="radio"
-                name="barcodeMode"
-                value="manual"
-                checked={manualEntry}
-                onChange={() => setBarcodeMode("manual")}
-                disabled={scanning}
-              />{" "}
-              Manual Entry
-            </label>
-
-            <label>
-              <input
-                type="radio"
-                name="barcodeMode"
-                value="auto"
-                checked={autoGenerate}
-                onChange={() => setBarcodeMode("auto")}
-                disabled={scanning}
-              />{" "}
-              Auto Generate
-            </label>
-          </div>
-
-          {scanning && (
-            <div
-              id="reader"
-              style={{ width: 300, margin: "auto", marginBottom: 20 }}
-            />
-          )}
-
-          {!scanning && !manualEntry && (
-            <button
-              type="button"
-              onClick={() => setScanning(true)}
-              style={styles.scanBtn}
-            >
-              Start Scan
+          <div className="submit-section">
+            <button type="submit" className="submit-button">
+              Add Product
             </button>
-          )}
-
-          <button type="submit" style={styles.submitBtn}>
-            Add Product
-          </button>
+          </div>
         </form>
       </div>
-    </>
+    </div>
   );
 }
-
-/* -------------------- STYLES -------------------- */
-const buttonBack = {
-  backgroundColor: "#28a745",
-  color: "#fff",
-  border: "none",
-  padding: "8px 16px",
-  borderRadius: "4px",
-  fontWeight: 600,
-  cursor: "pointer",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.12)",
-};
-
-const styles = {
-  container: {
-    maxWidth: 400,
-    margin: "30px auto",
-    padding: 20,
-    border: "1px solid #ccc",
-    borderRadius: 8,
-  },
-  scanBtn: {
-    padding: "10px 20px",
-    marginBottom: 10,
-    backgroundColor: "#007bff",
-    border: "none",
-    color: "white",
-    borderRadius: 4,
-    cursor: "pointer",
-    width: "100%",
-    fontSize: 16,
-  },
-  submitBtn: {
-    padding: "10px 20px",
-    backgroundColor: "green",
-    border: "none",
-    borderRadius: 4,
-    color: "white",
-    cursor: "pointer",
-    width: "100%",
-    fontSize: 16,
-  },
-};

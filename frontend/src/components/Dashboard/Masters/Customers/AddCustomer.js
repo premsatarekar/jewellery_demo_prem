@@ -4,7 +4,8 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import "./AddCustomer.css";
 
-const API = "https://jewellery-demo-prem-1.onrender.com/api/customer/add";
+// const API = "https://jewellery-demo-backend.onrender.com/api/customer/add";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const AddCustomer = () => {
   const navigate = useNavigate();
@@ -86,7 +87,7 @@ const AddCustomer = () => {
     if (!validate()) return;
 
     try {
-      const { data } = await axios.post(API, form);
+      const { data } = await axios.post(`${API_BASE}/api/customers/add`, form); // ✅
 
       const newCustomer = { ...form, id: data.id };
       setCustomers([...customers, newCustomer]);
