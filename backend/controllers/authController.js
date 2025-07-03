@@ -24,8 +24,10 @@ const addLoginLog = async (user_id, username, role, ip, action = "login") => {
 ──────────────────────────────── */
 export const login = async (req, res) => {
   const { username, password, role } = req.body;
-  if (!username || !password || !role)
-    return res.status(400).json({ message: "All fields required" });
+
+  if (!username || !password || !role) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
 
   let tableName = "";
   if (role === "superadmin") tableName = "users";
@@ -37,25 +39,22 @@ export const login = async (req, res) => {
     [username]
   );
 
-  if (rows.length === 0)
-    return res.status(401).json({ message: "Invalid credentials" });
-
   const user = rows[0];
 
-  // ✅ Strictly validate role match in DB
-  if (user.role?.toLowerCase() !== role.toLowerCase()) {
-    return res
-      .status(403)
-      .json({ message: "You are not authorized as this role." });
+  // 👇 Combine all error checks into one
+  if (
+    rows.length === 0 || // username not found
+    user.role?.toLowerCase() !== role.toLowerCase() || // role mismatch
+    !(await bcrypt.compare(password, user.password)) // password wrong
+  ) {
+    return res.status(401).json({ message: "Invalid username or password" });
   }
-
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.status(401).json({ message: "Invalid credentials" });
 
   await addLoginLog(user.id, user.username, role, req.ip, "login");
 
   const token = generateToken({ id: user.id, role });
   const { password: _, ...safeUser } = user;
+
   res.json({ token, user: safeUser });
 };
 

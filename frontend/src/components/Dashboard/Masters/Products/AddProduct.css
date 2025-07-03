@@ -124,6 +124,24 @@
   flex: 1;
   min-width: 300px;
 }
+.barcode-input-group input {
+  width: 100%;
+  padding: 14px 16px; /* 👈 bigger padding */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.barcode-input-group input:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.barcode-input-group input.error {
+  border-color: #e74c3c;
+}
 
 .radio-group {
   display: flex;

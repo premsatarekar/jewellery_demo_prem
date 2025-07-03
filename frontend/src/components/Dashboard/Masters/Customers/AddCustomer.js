@@ -1,10 +1,8 @@
-// src/components/Customers/AddCustomer.jsx
 import React, { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import "./AddCustomer.css";
 
-// const API = "https://jewellery-demo-backend.onrender.com/api/customer/add";
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const AddCustomer = () => {
@@ -28,7 +26,6 @@ const AddCustomer = () => {
   const [errors, setErrors] = useState({});
   const [serverErr, setServerErr] = useState("");
 
-  // 👉 input restriction
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -51,7 +48,6 @@ const AddCustomer = () => {
     setForm({ ...form, [name]: value });
   };
 
-  // 👉 validation on submit
   const validate = () => {
     const newErrors = {};
     const alphabetOnlyRegex = /^[A-Za-z\s]+$/;
@@ -87,7 +83,7 @@ const AddCustomer = () => {
     if (!validate()) return;
 
     try {
-      const { data } = await axios.post(`${API_BASE}/api/customers/add`, form); // ✅
+      const { data } = await axios.post(`${API_BASE}/api/customers/add`, form);
 
       const newCustomer = { ...form, id: data.id };
       setCustomers([...customers, newCustomer]);
@@ -107,175 +103,185 @@ const AddCustomer = () => {
         {serverErr && <p className="error server-error">{serverErr}</p>}
 
         <form onSubmit={handleSubmit}>
-          {/* Row 1 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>
-                First Name<span className="required">*</span>
-              </label>
+          <div className="form-grid">
+            {/* Row 1 */}
+            <div className="input-group">
               <input
+                type="text"
                 name="firstName"
                 value={form.firstName}
                 onChange={handleChange}
-                placeholder="Enter first name"
                 required
+                className={errors.firstName ? "error" : ""}
               />
+              <label>
+                First Name<span className="required">*</span>
+              </label>
               {errors.firstName && (
-                <span className="error">{errors.firstName}</span>
+                <div className="error-message">{errors.firstName}</div>
               )}
             </div>
 
-            <div className="form-group">
-              <label>
-                Middle Name <span className="optional">(optional)</span>
-              </label>
+            <div className="input-group">
               <input
+                type="text"
                 name="middleName"
                 value={form.middleName}
                 onChange={handleChange}
-                placeholder="Enter middle name"
+                required
+                className={errors.middleName ? "error" : ""}
               />
+              <label>
+                Middle Name <span className="optional">(optional)</span>
+              </label>
               {errors.middleName && (
-                <span className="error">{errors.middleName}</span>
+                <div className="error-message">{errors.middleName}</div>
               )}
             </div>
 
-            <div className="form-group">
-              <label>
-                Last Name<span className="required">*</span>
-              </label>
+            <div className="input-group">
               <input
+                type="text"
                 name="lastName"
                 value={form.lastName}
                 onChange={handleChange}
-                placeholder="Enter last name"
                 required
+                className={errors.lastName ? "error" : ""}
               />
+              <label>
+                Last Name<span className="required">*</span>
+              </label>
               {errors.lastName && (
-                <span className="error">{errors.lastName}</span>
+                <div className="error-message">{errors.lastName}</div>
               )}
             </div>
-          </div>
 
-          {/* Row 2 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>
-                Mobile<span className="required">*</span>
-              </label>
+            {/* Row 2 */}
+            <div className="input-group">
               <input
+                type="text"
                 name="mobile"
                 value={form.mobile}
                 onChange={handleChange}
-                placeholder="10-digit mobile number"
                 required
+                className={errors.mobile ? "error" : ""}
               />
-              {errors.mobile && <span className="error">{errors.mobile}</span>}
-            </div>
-
-            <div className="form-group">
               <label>
-                Email <span className="optional">(optional)</span>
+                Mobile<span className="required">*</span>
               </label>
-              <input
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Enter email"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>
-                Aadhar<span className="required">*</span>
-              </label>
-              <input
-                name="aadhar"
-                value={form.aadhar}
-                onChange={handleChange}
-                placeholder="12-digit Aadhar number"
-                required
-              />
-              {errors.aadhar && <span className="error">{errors.aadhar}</span>}
-            </div>
-          </div>
-
-          {/* Row 3 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>
-                City<span className="required">*</span>
-              </label>
-              <input
-                name="city"
-                value={form.city}
-                onChange={handleChange}
-                placeholder="Enter city"
-                required
-              />
-              {errors.city && <span className="error">{errors.city}</span>}
-            </div>
-
-            <div className="form-group">
-              <label>
-                Pin Code<span className="required">*</span>
-              </label>
-              <input
-                name="pin"
-                value={form.pin}
-                onChange={handleChange}
-                placeholder="6-digit pin code"
-                required
-              />
-              {errors.pin && <span className="error">{errors.pin}</span>}
-            </div>
-          </div>
-
-          {/* Row 4 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>
-                Reference Name <span className="optional">(optional)</span>
-              </label>
-              <input
-                name="referenceName"
-                value={form.referenceName}
-                onChange={handleChange}
-                placeholder="Enter reference name"
-              />
-              {errors.referenceName && (
-                <span className="error">{errors.referenceName}</span>
+              {errors.mobile && (
+                <div className="error-message">{errors.mobile}</div>
               )}
             </div>
 
-            <div className="form-group">
-              <label>
-                Reference No. <span className="optional">(optional)</span>
-              </label>
+            <div className="input-group">
               <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+              <label>
+                Email <span className="optional">(optional)</span>
+              </label>
+            </div>
+
+            <div className="input-group">
+              <input
+                type="text"
+                name="aadhar"
+                value={form.aadhar}
+                onChange={handleChange}
+                required
+                className={errors.aadhar ? "error" : ""}
+              />
+              <label>
+                Aadhar<span className="required">*</span>
+              </label>
+              {errors.aadhar && (
+                <div className="error-message">{errors.aadhar}</div>
+              )}
+            </div>
+
+            {/* Row 3 */}
+            <div className="input-group">
+              <input
+                type="text"
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                required
+                className={errors.city ? "error" : ""}
+              />
+              <label>
+                City<span className="required">*</span>
+              </label>
+              {errors.city && (
+                <div className="error-message">{errors.city}</div>
+              )}
+            </div>
+
+            <div className="input-group">
+              <input
+                type="text"
+                name="pin"
+                value={form.pin}
+                onChange={handleChange}
+                required
+                className={errors.pin ? "error" : ""}
+              />
+              <label>
+                Pin Code<span className="required">*</span>
+              </label>
+              {errors.pin && <div className="error-message">{errors.pin}</div>}
+            </div>
+
+            {/* Row 4 */}
+            <div className="input-group">
+              <input
+                type="text"
+                name="referenceName"
+                value={form.referenceName}
+                onChange={handleChange}
+                required
+                className={errors.referenceName ? "error" : ""}
+              />
+              <label>
+                Reference Name <span className="optional">(optional)</span>
+              </label>
+              {errors.referenceName && (
+                <div className="error-message">{errors.referenceName}</div>
+              )}
+            </div>
+
+            <div className="input-group">
+              <input
+                type="text"
                 name="referenceNo"
                 value={form.referenceNo}
                 onChange={handleChange}
-                placeholder="Enter reference number"
+                required
               />
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="form-row">
-            <div className="form-group full-width">
               <label>
-                Address<span className="required">*</span>
+                Reference No. <span className="optional">(optional)</span>
               </label>
+            </div>
+
+            {/* Address */}
+            <div className="input-group full-width">
               <textarea
                 name="address"
                 value={form.address}
                 onChange={handleChange}
-                placeholder="Enter full address"
                 required
+                className={errors.address ? "error" : ""}
               ></textarea>
+              <label>
+                Address<span className="required">*</span>
+              </label>
               {errors.address && (
-                <span className="error">{errors.address}</span>
+                <div className="error-message">{errors.address}</div>
               )}
             </div>
           </div>

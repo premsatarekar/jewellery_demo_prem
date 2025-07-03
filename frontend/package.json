@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.507.0",
     "mysql2": "^3.14.1",
     "quagga": "^0.12.1",

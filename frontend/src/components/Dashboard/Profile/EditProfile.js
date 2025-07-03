@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import "./ProfilePages.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
-
 const API = `${API_BASE}/api/profile`;
 
 const EditProfile = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,6 +19,7 @@ const EditProfile = () => {
     mobile: "",
     gst_number: "",
   });
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,19 +41,39 @@ const EditProfile = () => {
 
   const validate = () => {
     const e = {};
-    if (!formData.name.trim()) e.name = "Name required";
+
+    const trimmedName = formData.name.trim();
+    if (!/^[A-Za-z ]{3,15}$/.test(trimmedName)) {
+      e.name =
+        "Name must be 3-15 letters only (no digits or special characters)";
+    }
+
     if (!formData.email.trim()) e.email = "Email required";
-    if (!formData.shop_name.trim()) e.shop_name = "Shop name required";
-    if (!formData.mobile.trim()) e.mobile = "Mobile required";
-    else if (!/^\d{10}$/.test(formData.mobile)) e.mobile = "10-digit mobile";
-    if (!formData.gst_number.trim()) e.gst_number = "GST required";
+    else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(formData.email.trim())) {
+      e.email = "Email must be valid and end with @gmail.com";
+    }
+
+    const shopName = formData.shop_name.trim();
+    if (shopName.length < 15 || shopName.length > 25) {
+      e.shop_name = "Shop name must be between 15-25 characters";
+    }
+
+    if (!/^[1-9][0-9]{9}$/.test(formData.mobile.trim())) {
+      e.mobile = "Mobile must be exactly 10 digits and not start with 0";
+    }
+
+    if (!/^[A-Za-z0-9]{15}$/.test(formData.gst_number.trim())) {
+      e.gst_number = "GST must be 15 alphanumeric characters only";
+    }
+
     setErrors(e);
     return !Object.keys(e).length;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleImageChange = (e) => {
@@ -60,12 +81,12 @@ const EditProfile = () => {
     if (!file || !file.type.startsWith("image/")) return;
     const reader = new FileReader();
     reader.onloadend = () =>
-      setFormData((p) => ({ ...p, image_url: reader.result }));
+      setFormData((prev) => ({ ...prev, image_url: reader.result }));
     reader.readAsDataURL(file);
   };
 
   if (formData.image_url && formData.image_url.length > 15000000) {
-    alert("Image too large, please upload a smaller file (≤ 15 MB).");
+    alert("Image too large, please upload a smaller file (\u2264 15 MB).");
     return;
   }
 
@@ -101,15 +122,7 @@ const EditProfile = () => {
           boxShadow: "0 0 10px rgba(0,0,0,0.1)",
         }}
       >
-        <div
-          className="form-group"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            marginBottom: "20px",
-          }}
-        >
+        <div className="form-group" style={{ marginBottom: "20px" }}>
           <label style={{ fontWeight: "bold" }}>Profile Picture:</label>
           <input
             type="file"
@@ -133,13 +146,13 @@ const EditProfile = () => {
         </div>
 
         {[
-          ["Name", "name"],
-          ["Email", "email"],
-          ["Shop Name", "shop_name"],
-          ["Shop Address", "shop_address"],
-          ["Mobile", "mobile"],
-          ["GST Number", "gst_number"],
-        ].map(([label, key]) => (
+          "name",
+          "email",
+          "shop_name",
+          "shop_address",
+          "mobile",
+          "gst_number",
+        ].map((key) => (
           <div
             className="form-group"
             key={key}
@@ -152,7 +165,7 @@ const EditProfile = () => {
                 marginBottom: "5px",
               }}
             >
-              {label}:
+              {key.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}:
             </label>
             <input
               type="text"

@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import EyeOpen from "../../assets/eye-open.svg";
+import EyeClosed from "../../assets/eye-closed.svg";
+import "./AddStaff.css";
 
 const AddStaff = () => {
   const navigate = useNavigate();
@@ -12,57 +15,49 @@ const AddStaff = () => {
     phone: "",
     role: "staff",
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // 👉 input restriction for username (only alphabets)
-    if (name === "username") {
-      if (!/^[A-Za-z]*$/.test(value)) return; // block numbers/symbols
-    }
-
-    // 👉 phone: max 10 digits only
-    if (name === "phone") {
-      if (!/^\d{0,10}$/.test(value)) return;
-    }
+    if (name === "username" && !/^[A-Za-z]*$/.test(value)) return;
+    if (name === "phone" && !/^\d{0,10}$/.test(value)) return;
 
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validate = () => {
+    const newErrors = {};
     const { username, password, email, phone } = formData;
 
-    const usernameRegex = /^[A-Za-z]{1,}$/;
-    const phoneRegex = /^[0-9]{10}$/;
-
-    if (!username || !password || !email || !phone) {
-      alert("❗ All fields are required");
-      return false;
+    if (!username) newErrors.username = "Username is required";
+    else if (!/^[A-Za-z]{3,15}$/.test(username)) {
+      newErrors.username =
+        "Username must be at least 3 to 15 letters (alphabets only)";
     }
 
-    if (!usernameRegex.test(username)) {
-      alert("❌ Username must contain only letters (no numbers/symbols)");
-      return false;
+    if (!password) newErrors.password = "Password is required";
+
+    if (!email) newErrors.email = "Email is required";
+    else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
+      newErrors.email =
+        "Only valid Gmail addresses allowed (e.g., xyz@gmail.com)";
     }
 
-    if (!email.endsWith("@gmail.com")) {
-      alert("❌ Email must be a valid Gmail (e.g., user@gmail.com)");
-      return false;
+    if (!phone) newErrors.phone = "Phone number is required";
+    else if (!/^\d{10}$/.test(phone) || phone === "0000000000") {
+      newErrors.phone = "Phone number must be exactly 10 digits";
     }
 
-    if (!phoneRegex.test(phone)) {
-      alert("❌ Phone number must be exactly 10 digits");
-      return false;
-    }
-
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
 
     try {
@@ -71,7 +66,6 @@ const AddStaff = () => {
         `${process.env.REACT_APP_API_BASE_URL}/api/staff/add`,
         formData
       );
-
       alert("✅ Staff saved!");
       navigate("/dashboard/staff/view");
     } catch (err) {
@@ -87,113 +81,62 @@ const AddStaff = () => {
   };
 
   return (
-    <>
-      <style>{`
-        .card {
-          max-width: 420px;
-          margin: 2rem auto;
-          padding: 2rem 1.5rem;
-          border-radius: 0.75rem;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-          background: #ffffff;
-        }
-        .card h2 {
-          font-size: 1.3rem;
-          font-weight: 600;
-          margin-bottom: 1.25rem;
-          text-align: center;
-        }
-        .card input {
-          width: 100%;
-          padding: 0.6rem 0.8rem;
-          margin-bottom: 0.9rem;
-          border: 1px solid #d1d5db;
-          border-radius: 0.5rem;
-          font-size: 0.95rem;
-        }
-        .card button {
-          width: 100%;
-          padding: 0.7rem 0;
-          background: #2563eb;
-          color: #fff;
-          font-weight: 500;
-          border-radius: 0.5rem;
-          border: none;
-          cursor: pointer;
-          transition: background 0.2s ease;
-        }
-        .card button:hover:not(:disabled) {
-          background: #1e40af;
-        }
-        .card button:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-        @media (max-width: 480px) {
-          .card {
-            padding: 1.5rem 1rem;
-            margin: 1rem;
-          }
-          .card h2 {
-            font-size: 1.15rem;
-          }
-        }
-      `}</style>
+    <div className="card">
+      <h2>➕ Add Staff Member</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="username"
+          placeholder="Username (only letters)"
+          value={formData.username}
+          onChange={handleChange}
+          maxLength={15}
+        />
+        {errors.username && <div className="error-msg">{errors.username}</div>}
 
-      <div className="card">
-        <h2>➕ Add Staff Member</h2>
-        <form onSubmit={handleSubmit}>
+        <div className="password-wrapper">
           <input
-            name="username"
-            placeholder="Username (only letters)"
-            value={formData.username}
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Enter Password"
+            value={formData.password}
             onChange={handleChange}
+            maxLength={10}
           />
-
-          <div style={{ position: "relative" }}>
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              style={{ paddingRight: "2.5rem" }}
+          <span
+            className="eye-icon"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            <img
+              src={showPassword ? EyeOpen : EyeClosed}
+              alt={showPassword ? "Hide password" : "Show password"}
+              style={{ width: "20px", height: "20px" }}
             />
-            <span
-              onClick={() => setShowPassword((prev) => !prev)}
-              style={{
-                position: "absolute",
-                top: "50%",
-                right: "10px",
-                transform: "translateY(-50%)",
-                cursor: "pointer",
-                fontSize: "1rem",
-                userSelect: "none",
-              }}
-            >
-              {showPassword ? "👁️" : "🙈"}
-            </span>
-          </div>
+          </span>
+        </div>
+        {errors.password && <div className="error-msg">{errors.password}</div>}
 
-          <input
-            name="email"
-            type="email"
-            placeholder="Email (must be gmail)"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <input
-            name="phone"
-            placeholder="Phone (10 digits)"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Save Staff"}
-          </button>
-        </form>
-      </div>
-    </>
+        <input
+          name="email"
+          type="email"
+          placeholder="Enter Gmail"
+          value={formData.email}
+          onChange={handleChange}
+        />
+        {errors.email && <div className="error-msg">{errors.email}</div>}
+
+        <input
+          name="phone"
+          placeholder="Enter 10-digit Phone Number"
+          value={formData.phone}
+          onChange={handleChange}
+        />
+        {errors.phone && <div className="error-msg">{errors.phone}</div>}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Save Staff"}
+        </button>
+      </form>
+    </div>
   );
 };
 

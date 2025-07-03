@@ -154,6 +154,38 @@
   font-weight: 500;
 }
 
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  padding-right: 30px;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+}
+
+.resend-btn {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #764ba2;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+.resend-btn:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .auth-background {

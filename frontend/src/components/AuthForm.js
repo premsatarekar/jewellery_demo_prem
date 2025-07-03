@@ -3,11 +3,13 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "./AuthForm.css";
 import API from "../api";
+import EyeOpen from "../assets/eye-open.svg";
+import EyeClosed from "../assets/eye-closed.svg";
+import Loader from "./Loader"; // ✅ Custom lottie loader
 
 export default function AuthForm({ onLogin }) {
   const navigate = useNavigate();
 
-  /* ----------------------------- local state ----------------------------- */
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -17,7 +19,6 @@ export default function AuthForm({ onLogin }) {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  /* ----------------------------- handlers ------------------------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -42,33 +43,37 @@ export default function AuthForm({ onLogin }) {
     const { username, password, role } = formData;
     try {
       setLoading(true);
-      const res = await API.post("/auth/login", {
-        username,
-        password,
-        role,
-      });
+      const res = await API.post("/auth/login", { username, password, role });
 
-      // ✅ success – backend returns { token, user }
       const { token, user } = res.data;
       toast.success(
         `${role === "staff" ? "Staff" : "Superadmin"} login successful!`
       );
 
-      // Persist session
       localStorage.setItem("token", token);
       localStorage.setItem("currentUser", JSON.stringify(user));
       localStorage.setItem("role", role);
       localStorage.setItem("isLoggedIn", "true");
 
-      // Call onLogin only if provided
       if (typeof onLogin === "function") onLogin();
-
       window.location.href = "/dashboard/admin-dashboard";
     } catch (err) {
-      console.error("Login error", err);
-      const message =
-        err.response?.data?.message || err.message || "Invalid credentials.";
-      toast.error(message);
+      const backendMessage = err.response?.data?.message;
+      const status = err.response?.status;
+
+      console.error("Login error", backendMessage);
+
+      if (status === 401) {
+        toast.error("Invalid username or password");
+        setErrors({
+          username: "Invalid username or password",
+          password: "Invalid username or password",
+        });
+      } else {
+        toast.error(
+          backendMessage || "Something went wrong. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -78,7 +83,6 @@ export default function AuthForm({ onLogin }) {
     navigate("/forgot-password");
   };
 
-  /* ----------------------------- UI ------------------------------------ */
   return (
     <div className="auth-background">
       <div className="auth-container">
@@ -89,7 +93,7 @@ export default function AuthForm({ onLogin }) {
             <input
               type="text"
               name="username"
-              placeholder="Username"
+              placeholder="Enter Username"
               autoComplete="username"
               value={formData.username}
               onChange={handleChange}
@@ -100,18 +104,24 @@ export default function AuthForm({ onLogin }) {
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                placeholder="Password"
+                placeholder="Enter Password"
                 autoComplete="current-password"
                 value={formData.password}
                 onChange={handleChange}
+                className={errors.password ? "input-error" : ""}
               />
               <span
                 className="eye-icon"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
-                {showPassword ? "👁️" : "🙈"}
+                <img
+                  src={showPassword ? EyeOpen : EyeClosed}
+                  alt="Toggle visibility"
+                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                />
               </span>
             </div>
+
             {errors.password && <p className="error">{errors.password}</p>}
 
             <select
@@ -135,6 +145,12 @@ export default function AuthForm({ onLogin }) {
                 Forgot Password?
               </button>
             </p>
+          )}
+
+          {loading && (
+            <div className="card-loader">
+              <Loader size={100} />
+            </div>
           )}
         </div>
       </div>

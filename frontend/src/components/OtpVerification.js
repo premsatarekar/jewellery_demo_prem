@@ -9,19 +9,30 @@ export default function OtpVerification() {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(60);
   const navigate = useNavigate();
 
-  /* ----------------------------- guards ----------------------------- */
+  const email = localStorage.getItem("resetEmail");
+
   useEffect(() => {
     const role = localStorage.getItem("role");
     if (role && role !== "superadmin") navigate("/");
 
-    if (!localStorage.getItem("resetEmail")) {
+    if (!email) {
       setError("No reset session found. Please try again.");
     }
-  }, [navigate]);
+  }, [navigate, email]);
 
-  /* ----------------------------- verify OTP ------------------------- */
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
   const handleVerify = async (e) => {
     e.preventDefault();
     if (!otp.trim()) {
@@ -31,11 +42,7 @@ export default function OtpVerification() {
 
     try {
       setLoading(true);
-      const email = localStorage.getItem("resetEmail");
       await axios.post(`${API_BASE}/verify-otp`, { email, otp: otp.trim() });
-
-      // success
-      setError("");
       navigate("/reset-password");
     } catch (err) {
       const msg = err.response?.data?.message || "Invalid OTP";
@@ -46,7 +53,17 @@ export default function OtpVerification() {
     }
   };
 
-  /* ----------------------------- UI --------------------------------- */
+  const handleResendOtp = async () => {
+    try {
+      await axios.post(`${API_BASE}/forgot-password`, { email });
+      setResendTimer(60);
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || "Failed to resend OTP. Try again.";
+      setError(msg);
+    }
+  };
+
   return (
     <div className="auth-background">
       <div className="auth-container">
@@ -93,6 +110,15 @@ export default function OtpVerification() {
               {loading ? "Verifying…" : "Verify"}
             </button>
           </form>
+
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={resendTimer > 0}
+            className="resend-btn"
+          >
+            {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+          </button>
         </div>
       </div>
     </div>
